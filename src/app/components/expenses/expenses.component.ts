@@ -9,4 +9,10 @@ import { Component } from '@angular/core';
 })
 export class ExpensesComponent {
   title: string = 'Dépenses';
+
+  isShow: boolean = false;
+
+  toggleModal(): void {
+    this.isShow = !this.isShow;
+  }
 }

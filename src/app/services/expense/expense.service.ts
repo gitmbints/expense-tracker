@@ -8,10 +8,6 @@ import { Expense } from '../../model/expense';
 export class ExpenseService {
   private readonly expenses = signal<Expense[]>(expensesData.data);
 
-  constructor() {
-    console.log('data from json : ', this.expenses());
-  }
-
   getExpenses(): Signal<Expense[]> {
     return this.expenses.asReadonly();
   }

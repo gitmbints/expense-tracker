@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, Signal } from '@angular/core';
+import { ExpenseService } from '../../services/expense/expense.service';
+import { Expense } from '../../model/expense';
 
 @Component({
   selector: 'app-expenses',
@@ -10,9 +12,7 @@ import { Component } from '@angular/core';
 export class ExpensesComponent {
   title: string = 'Dépenses';
 
-  isShow: boolean = false;
+  expenseService: ExpenseService = inject(ExpenseService);
 
-  toggleModal(): void {
-    this.isShow = !this.isShow;
-  }
+  expenseList: Signal<Expense[]> = this.expenseService.getExpenses();
 }

@@ -1,12 +1,7 @@
 import { Component, inject, OnInit, Signal } from '@angular/core';
 import { ExpenseService } from '../../services/expense/expense.service';
 import { Expense } from '../../model/expense';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-expenses',
@@ -21,11 +16,13 @@ export class ExpensesComponent {
   expenseService: ExpenseService = inject(ExpenseService);
   formBuilder: FormBuilder = inject(FormBuilder);
 
-  expenseList: Signal<Expense[]> = this.expenseService.getExpenses();
+  expenseList: Signal<Expense[]> = this.expenseService.getExpenseList();
+  expenseCategoryList: string[] = this.expenseService.getExpenseCategoryList();
 
   expenseForm = this.formBuilder.group({
     name: [''],
     amount: [0],
+    category: [''],
     date: [''],
   });
 

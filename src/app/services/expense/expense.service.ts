@@ -32,7 +32,7 @@ export class ExpenseService {
   }
 
   private generateId(): string {
-    return Math.random().toString(36).substr(2, 9);
+    return `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
   }
 
   // TODO add new expenses entry into expenses signal

@@ -217,86 +217,91 @@
     </thead>
     <tbody>
       @for (expense of expenseList(); track expense.id) {
-      <tr
-        class="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-      >
-        <td class="w-4 p-4">
-          <div class="flex items-center">
-            <input
-              id="checkbox-table-search-1"
-              type="checkbox"
-              class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-            />
-            <label for="checkbox-table-search-1" class="sr-only"
-              >checkbox</label
-            >
-          </div>
-        </td>
-        <th
-          scope="row"
-          class="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
+        <tr
+          class="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
         >
-          {{ expense.name }}
-        </th>
-        <td class="flex flex-wrap px-6 py-4">
-          @for (category of expense.category; track category) {
-            <span
-              class="me-2 rounded bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-300"
-              >{{ category }}</span
-            >
-          }
-        </td>
-        <td class="px-6 py-4">{{ expense.date }}</td>
-        <td class="px-6 py-4">{{ expense.amount }}</td>
-        <td class="px-6 py-4">
-          <ng-container>
-            <button
-              id="dropdownMenuIconButton"
-              [attr.data-dropdown-toggle]="'dropdownDots-' + expense.id"
-              class="inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-50 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-              type="button"
-            >
-              <svg
-                class="h-5 w-5"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 4 15"
+          <td class="w-4 p-4">
+            <div class="flex items-center">
+              <input
+                id="checkbox-table-search-1"
+                type="checkbox"
+                class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
+              />
+              <label for="checkbox-table-search-1" class="sr-only"
+                >checkbox</label
               >
-                <path
-                  d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"
-                />
-              </svg>
-            </button>
-
-            <!-- Dropdown menu -->
-            <div
-              [id]="'dropdownDots-' + expense.id"
-              class="z-10 hidden w-44 divide-y divide-gray-100 rounded-lg bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
-            >
-              <ul class="py-2 text-sm" aria-labelledby="dropdownMenuIconButton">
-                <li>
-                  <a
-                    href="#"
-                    class="block px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-                    >Modifier</a
-                  >
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    class="block px-4 py-2 text-red-600 hover:bg-gray-100 dark:text-red-400 dark:hover:bg-gray-600 dark:hover:text-white"
-                    >Effacer</a
-                  >
-                </li>
-              </ul>
             </div>
-          </ng-container>
-        </td>
-      </tr> 
+          </td>
+          <th
+            scope="row"
+            class="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
+          >
+            {{ expense.name }}
+          </th>
+          <td class="flex flex-wrap px-6 py-4">
+            @for (category of expense.category; track category) {
+              <span
+                class="me-2 rounded bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-300"
+                >{{ category }}</span
+              >
+            }
+          </td>
+          <td class="px-6 py-4">{{ expense.date }}</td>
+          <td class="px-6 py-4">{{ expense.amount }}</td>
+          <td class="px-6 py-4">
+            <ng-container>
+              <button
+                id="dropdownMenuIconButton"
+                [attr.data-dropdown-toggle]="'dropdownDots-' + expense.id"
+                class="inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-50 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                type="button"
+              >
+                <svg
+                  class="h-5 w-5"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 4 15"
+                >
+                  <path
+                    d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"
+                  />
+                </svg>
+              </button>
+
+              <!-- Dropdown menu -->
+              <div
+                [id]="'dropdownDots-' + expense.id"
+                class="z-10 hidden w-44 divide-y divide-gray-100 rounded-lg bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
+              >
+                <ul
+                  class="py-2 text-sm"
+                  aria-labelledby="dropdownMenuIconButton"
+                >
+                  <li>
+                    <a
+                      href="#"
+                      class="block px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+                      >Modifier</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      href="#"
+                      class="block px-4 py-2 text-red-600 hover:bg-gray-100 dark:text-red-400 dark:hover:bg-gray-600 dark:hover:text-white"
+                      >Effacer</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </ng-container>
+          </td>
+        </tr>
       } @empty {
         <tr>
-          <td colspan="6" class="text-gray-500 py-2">Aucune donnée à afficher</td>
+          <td colspan="6" class="py-2 text-gray-500">
+            Aucune donnée à afficher
+          </td>
         </tr>
       }
     </tbody>
@@ -344,7 +349,11 @@
         </button>
       </div>
       <!-- Modal body -->
-      <form class="p-4 md:p-5" [formGroup]="expenseForm" (ngSubmit)="onSubmit()">
+      <form
+        class="p-4 md:p-5"
+        [formGroup]="expenseForm"
+        (ngSubmit)="onSubmit()"
+      >
         <div class="mb-4 grid grid-cols-2 gap-4">
           <div class="col-span-2">
             <label

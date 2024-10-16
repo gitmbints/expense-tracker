@@ -1,7 +1,12 @@
-import { Component, inject, OnInit, Signal } from '@angular/core';
+import { Component, inject, signal, Signal } from '@angular/core';
 import { ExpenseService } from '../../services/expense/expense.service';
 import { Expense } from '../../model/expense';
-import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-expenses',
@@ -20,10 +25,10 @@ export class ExpensesComponent {
   expenseCategoryList: string[] = this.expenseService.getExpenseCategoryList();
 
   expenseForm = this.formBuilder.group({
-    name: [''],
+    name: ['', Validators.required],
     amount: [0],
-    category: this.formBuilder.array([]),
-    date: [''],
+    category: this.formBuilder.array([''], Validators.required),
+    date: ['', Validators.required],
   });
 
   private getCategory(): FormArray {
@@ -44,6 +49,16 @@ export class ExpensesComponent {
   }
 
   onSubmit(): void {
+    const expenseData = {
+      name: this.expenseForm.value.name || '',
+      amount: this.expenseForm.value.amount || 0,
+      category: (this.expenseForm.value.category || ['']).filter(
+        (category) => category !== null,
+      ) as string[],
+      date: this.expenseForm.value.date || new Date().toISOString(),
+    };
+
+    this.expenseService.addExpense(expenseData);
     console.warn(this.expenseForm.value);
   }
 }

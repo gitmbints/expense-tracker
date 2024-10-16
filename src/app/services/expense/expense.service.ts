@@ -1,6 +1,6 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import * as expensesData from '../../data/expenses.json';
-import { Expense } from '../../model/expense';
+import { Expense, ExpenseWithoutId } from '../../model/expense';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +22,17 @@ export class ExpenseService {
     });
 
     return Array.from(uniqueCategories);
+  }
+
+  addExpense(expense: ExpenseWithoutId): void {
+    this.expenses.update((expenses) => [
+      ...expenses,
+      { ...expense, id: this.generateId() },
+    ]);
+  }
+
+  private generateId(): string {
+    return Math.random().toString(36).substr(2, 9);
   }
 
   // TODO add new expenses entry into expenses signal

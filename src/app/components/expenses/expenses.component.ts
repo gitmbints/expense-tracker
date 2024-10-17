@@ -4,6 +4,8 @@ import { Expense } from '../../model/expense';
 import {
   FormArray,
   FormBuilder,
+  FormControl,
+  FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -25,11 +27,24 @@ export class ExpensesComponent {
   expenseList: Signal<Expense[]> = this.expenseService.getExpenseList();
   expenseCategoryList: string[] = this.expenseService.getExpenseCategoryList();
 
-  expenseForm = this.formBuilder.group({
-    name: ['', Validators.required],
-    amount: [0],
-    category: this.formBuilder.array([''], Validators.required),
-    date: ['', Validators.required],
+  readonly expenseForm: FormGroup = new FormGroup({
+    name: new FormControl('', {
+      nonNullable: true,
+      validators: Validators.required,
+    }),
+    amount: new FormControl(0, {
+      nonNullable: true,
+      validators: Validators.required,
+    }),
+    category: new FormArray([
+      new FormControl('', {
+        nonNullable: true,
+        validators: Validators.required,
+      }),
+    ]),
+    date: new FormControl(new Date().toISOString(), {
+      nonNullable: true,
+    }),
   });
 
   private getCategory(): FormArray {
@@ -51,12 +66,10 @@ export class ExpensesComponent {
 
   onSubmit(): void {
     const expenseData = {
-      name: this.expenseForm.value.name || '',
-      amount: this.expenseForm.value.amount || 0,
-      category: (this.expenseForm.value.category || ['']).filter(
-        (category) => category !== null,
-      ) as string[],
-      date: this.expenseForm.value.date || new Date().toISOString(),
+      name: this.expenseForm.value.name,
+      amount: this.expenseForm.value.amount,
+      category: this.expenseForm.value.category,
+      date: this.expenseForm.value.date,
     };
 
     this.expenseService.addExpense(expenseData);

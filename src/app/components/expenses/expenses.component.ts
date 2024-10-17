@@ -1,4 +1,4 @@
-import { Component, inject, signal, Signal } from '@angular/core';
+import { Component, inject, Signal } from '@angular/core';
 import { ExpenseService } from '../../services/expense/expense.service';
 import { Expense } from '../../model/expense';
 import {
@@ -17,6 +17,7 @@ import {
 })
 export class ExpensesComponent {
   title: string = 'Dépenses';
+  isModalOpen: boolean = false;
 
   expenseService: ExpenseService = inject(ExpenseService);
   formBuilder: FormBuilder = inject(FormBuilder);
@@ -60,5 +61,13 @@ export class ExpensesComponent {
 
     this.expenseService.addExpense(expenseData);
     console.warn(this.expenseForm.value);
+  }
+
+  onEdit(id: string): void {
+    this.toggleModal();
+  }
+
+  toggleModal(): void {
+    this.isModalOpen = !this.isModalOpen;
   }
 }

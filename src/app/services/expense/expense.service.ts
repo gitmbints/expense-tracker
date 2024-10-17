@@ -24,6 +24,7 @@ export class ExpenseService {
     return Array.from(uniqueCategories);
   }
 
+  // TODO add new expenses entry into expenses signal
   addExpense(expense: ExpenseWithoutId): void {
     this.expenses.update((expenses) => [
       ...expenses,
@@ -35,7 +36,6 @@ export class ExpenseService {
     return `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
   }
 
-  // TODO add new expenses entry into expenses signal
   // TODO modify existing expenses entry from expenses signal
   // TODO delete existing expenses entry from expenses signal
 }

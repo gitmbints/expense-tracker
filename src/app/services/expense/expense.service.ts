@@ -25,7 +25,7 @@ export class ExpenseService {
   }
 
   // TODO add new expenses entry into expenses signal
-  addExpense(expense: ExpenseWithoutId): void {
+  addExpense(expense: Omit<Expense, 'id'>): void {
     this.expenses.update((expenses) => [
       ...expenses,
       { ...expense, id: this.generateId() },

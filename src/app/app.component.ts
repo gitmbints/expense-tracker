@@ -12,6 +12,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 })
 export class AppComponent implements OnInit {
   title: string = 'Expense Tracker';
+
   ngOnInit(): void {
     initFlowbite();
   }

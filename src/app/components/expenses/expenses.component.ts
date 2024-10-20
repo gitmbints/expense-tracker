@@ -44,6 +44,7 @@ export class ExpensesComponent {
     }),
     category: this.formBuilder.array([]),
     date: this.formBuilder.control<string>('', {
+      validators: Validators.required,
       nonNullable: true,
     }),
   });
@@ -64,6 +65,12 @@ export class ExpensesComponent {
       );
       selectedCategory.removeAt(index);
     }
+  }
+
+  onDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const dateValue = input.value; // Expected format: YYYY-MM-DD
+    this.expenseForm.patchValue({ date: dateValue });
   }
 
   onSubmit(): void {

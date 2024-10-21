@@ -5,5 +5,3 @@ export interface Expense {
   category: string[];
   date: string;
 }
-
-export type ExpenseWithoutId = Omit<Expense, 'id'>;

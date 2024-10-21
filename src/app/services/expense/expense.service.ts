@@ -1,6 +1,6 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import * as expensesData from '../../data/expenses.json';
-import { Expense, ExpenseWithoutId } from '../../model/expense';
+import { Expense } from '../../model/expense';
 
 @Injectable({
   providedIn: 'root',

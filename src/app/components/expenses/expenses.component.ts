@@ -1,4 +1,4 @@
-import { Component, inject, Signal } from '@angular/core';
+import { Component, inject, OnInit, Signal } from '@angular/core';
 import { ExpenseService } from '../../services/expense/expense.service';
 import { Expense } from '../../model/expense';
 import {
@@ -26,12 +26,16 @@ interface ExpenseForm {
 @Flowbite()
 export class ExpensesComponent {
   title: string = 'Dépenses';
+  expenseList: Signal<Expense[]>;
+  expenseCategoryList: string[];
 
   expenseService: ExpenseService = inject(ExpenseService);
   formBuilder: FormBuilder = inject(FormBuilder);
 
-  expenseList: Signal<Expense[]> = this.expenseService.getExpenseList();
-  expenseCategoryList: string[] = this.expenseService.getExpenseCategoryList();
+  constructor() {
+    this.expenseList = this.expenseService.getExpenseList();
+    this.expenseCategoryList = this.expenseService.getExpenseCategoryList();
+  }
 
   expenseForm = this.formBuilder.group<ExpenseForm>({
     name: this.formBuilder.control<string>('', {

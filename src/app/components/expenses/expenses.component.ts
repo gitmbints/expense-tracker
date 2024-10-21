@@ -2,10 +2,10 @@ import { Component, inject, OnInit, Signal } from '@angular/core';
 import { ExpenseService } from '../../services/expense/expense.service';
 import { Expense } from '../../model/expense';
 import {
+  FormArray,
+  FormBuilder,
   FormControl,
-  FormGroup,
   ReactiveFormsModule,
-  Validators,
 } from '@angular/forms';
 import { Flowbite } from '../../flowbite/flowbite';
 import { Datepicker } from 'flowbite';
@@ -24,6 +24,7 @@ export class ExpensesComponent implements OnInit {
   expenseCategoryList: string[];
 
   expenseService: ExpenseService = inject(ExpenseService);
+  formBuilder: FormBuilder = inject(FormBuilder);
 
   constructor() {
     this.expenseList = this.expenseService.getExpenseList();
@@ -34,22 +35,49 @@ export class ExpensesComponent implements OnInit {
     this.initDatePicker();
   }
 
-  expenseForm = new FormGroup({
-    name: new FormControl(''),
-    amount: new FormControl(0),
-    date: new FormControl(''),
+  expenseForm = this.formBuilder.group({
+    name: [''],
+    amount: [0],
+    category: this.formBuilder.array([]),
+    date: [''],
   });
+
+  get categoryArray(): FormArray {
+    return this.expenseForm.get('category') as FormArray;
+  }
+
+  onSelectCategory(event: Event, category: string): void {
+    const inputElement = event.target as HTMLInputElement;
+
+    if (inputElement.checked) {
+      this.categoryArray.push(new FormControl(category));
+    } else {
+      const index = this.categoryArray.controls.findIndex(
+        (control) => control.value === category,
+      );
+
+      if (index >= 0) {
+        this.categoryArray.removeAt(index);
+      }
+    }
+  }
+
+  isSelected(category: string): boolean {
+    return this.categoryArray.value.includes(category);
+  }
 
   private initDatePicker(): void {
     setTimeout(() => {
-      const datePickerElement = document.getElementById('datepicker-actions');
+      const datePickerElement: HTMLInputElement = document.getElementById(
+        'datepicker-actions',
+      ) as HTMLInputElement;
       new Datepicker(datePickerElement);
 
       datePickerElement?.addEventListener('changeDate', (e: any) => {
         const value = e.target.value;
-        const formControl = this.expenseForm.controls.date;
-        formControl?.setValue(value);
-        formControl?.markAsDirty;
+        const dateFormControl = this.expenseForm.controls.date;
+        dateFormControl?.setValue(value);
+        dateFormControl?.markAsDirty;
       });
     });
   }

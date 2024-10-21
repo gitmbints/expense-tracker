@@ -2,7 +2,6 @@ import { Component, inject, OnInit, Signal } from '@angular/core';
 import { ExpenseService } from '../../services/expense/expense.service';
 import { Expense } from '../../model/expense';
 import {
-  FormArray,
   FormBuilder,
   FormControl,
   FormGroup,
@@ -66,8 +65,6 @@ export class ExpensesComponent implements OnInit {
       const index = categoryArray.indexOf(category);
       categoryArray.splice(index, 1);
     }
-
-    console.log(categoryArray);
   }
 
   private initDatePicker(): void {

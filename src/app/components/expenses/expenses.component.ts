@@ -5,7 +5,9 @@ import {
   FormArray,
   FormBuilder,
   FormControl,
+  FormGroup,
   ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
 import { Flowbite } from '../../flowbite/flowbite';
 import { Datepicker } from 'flowbite';
@@ -35,35 +37,37 @@ export class ExpensesComponent implements OnInit {
     this.initDatePicker();
   }
 
-  expenseForm = this.formBuilder.group({
-    name: [''],
-    amount: [0],
-    category: this.formBuilder.array([]),
-    date: [''],
+  expenseForm = new FormGroup({
+    name: new FormControl('', {
+      validators: Validators.required,
+      nonNullable: true,
+    }),
+    amount: new FormControl(0, {
+      validators: Validators.required,
+      nonNullable: true,
+    }),
+    category: new FormControl([], {
+      validators: Validators.required,
+      nonNullable: true,
+    }),
+    date: new FormControl('', {
+      validators: Validators.required,
+      nonNullable: true,
+    }),
   });
 
-  get categoryArray(): FormArray {
-    return this.expenseForm.get('category') as FormArray;
-  }
+  selectCategory(event: Event, category: string): void {
+    const isChecked: boolean = (event.target as HTMLInputElement).checked;
+    const categoryArray: string[] = this.expenseForm.controls.category.value;
 
-  onSelectCategory(event: Event, category: string): void {
-    const inputElement = event.target as HTMLInputElement;
-
-    if (inputElement.checked) {
-      this.categoryArray.push(new FormControl(category));
+    if (isChecked) {
+      categoryArray.push(category);
     } else {
-      const index = this.categoryArray.controls.findIndex(
-        (control) => control.value === category,
-      );
-
-      if (index >= 0) {
-        this.categoryArray.removeAt(index);
-      }
+      const index = categoryArray.indexOf(category);
+      categoryArray.splice(index, 1);
     }
-  }
 
-  isSelected(category: string): boolean {
-    return this.categoryArray.value.includes(category);
+    console.log(categoryArray);
   }
 
   private initDatePicker(): void {

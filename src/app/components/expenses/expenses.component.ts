@@ -38,7 +38,7 @@ export class ExpensesComponent implements OnInit {
 
   expenseForm = new FormGroup({
     name: new FormControl('', {
-      validators: Validators.required,
+      validators: [Validators.required, Validators.minLength(3)],
       nonNullable: true,
     }),
     amount: new FormControl(0, {
@@ -46,7 +46,6 @@ export class ExpensesComponent implements OnInit {
       nonNullable: true,
     }),
     category: new FormControl([], {
-      validators: Validators.required,
       nonNullable: true,
     }),
     date: new FormControl('', {
@@ -54,18 +53,6 @@ export class ExpensesComponent implements OnInit {
       nonNullable: true,
     }),
   });
-
-  selectCategory(event: Event, category: string): void {
-    const isChecked: boolean = (event.target as HTMLInputElement).checked;
-    const categoryArray: string[] = this.expenseForm.controls.category.value;
-
-    if (isChecked) {
-      categoryArray.push(category);
-    } else {
-      const index = categoryArray.indexOf(category);
-      categoryArray.splice(index, 1);
-    }
-  }
 
   private initDatePicker(): void {
     setTimeout(() => {
@@ -83,7 +70,29 @@ export class ExpensesComponent implements OnInit {
     });
   }
 
+  selectCategory(event: Event, category: string): void {
+    const isChecked: boolean = (event.target as HTMLInputElement).checked;
+    const categoryArray: string[] = this.expenseForm.controls.category.value;
+
+    if (isChecked) {
+      categoryArray.push(category);
+    } else {
+      const index = categoryArray.indexOf(category);
+      categoryArray.splice(index, 1);
+    }
+  }
+
+  isInvalidAndTouchedOrDirty(formControl: FormControl): boolean {
+    return formControl.invalid && (formControl.touched || formControl.dirty);
+  }
+
   onSubmit(): void {
+    this.expenseForm.markAllAsTouched();
+
+    if (this.expenseForm.invalid) {
+      return;
+    }
+
     console.log(this.expenseForm.value);
     this.expenseForm.reset();
   }

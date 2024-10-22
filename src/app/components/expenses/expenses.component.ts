@@ -46,6 +46,7 @@ export class ExpensesComponent implements OnInit {
       nonNullable: true,
     }),
     category: new FormControl([], {
+      validators: Validators.minLength(1),
       nonNullable: true,
     }),
     date: new FormControl('', {
@@ -53,6 +54,8 @@ export class ExpensesComponent implements OnInit {
       nonNullable: true,
     }),
   });
+
+  private categoryArray: string[] = this.expenseForm.controls.category.value;
 
   private initDatePicker(): void {
     setTimeout(() => {
@@ -70,15 +73,30 @@ export class ExpensesComponent implements OnInit {
     });
   }
 
+  hasCategory(category: string): boolean {
+    return this.categoryArray.includes(category);
+  }
+
+  isCategoryLengthReached(category: string): boolean {
+    if (this.categoryArray.length === 1 && this.hasCategory(category)) {
+      return false;
+    }
+
+    if (this.categoryArray.length > 2 && !this.hasCategory(category)) {
+      return false;
+    }
+
+    return true;
+  }
+
   selectCategory(event: Event, category: string): void {
     const isChecked: boolean = (event.target as HTMLInputElement).checked;
-    const categoryArray: string[] = this.expenseForm.controls.category.value;
 
     if (isChecked) {
-      categoryArray.push(category);
+      this.categoryArray.push(category);
     } else {
-      const index = categoryArray.indexOf(category);
-      categoryArray.splice(index, 1);
+      const index = this.categoryArray.indexOf(category);
+      this.categoryArray.splice(index, 1);
     }
   }
 

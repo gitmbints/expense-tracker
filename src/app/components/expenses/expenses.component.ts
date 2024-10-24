@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { Flowbite } from '../../flowbite/flowbite';
 import { Datepicker } from 'flowbite';
+import { atLeastOneSelectedValidator } from '../../shared/custom-validators';
 
 @Component({
   selector: 'app-expenses',
@@ -21,8 +22,9 @@ import { Datepicker } from 'flowbite';
 @Flowbite()
 export class ExpensesComponent implements OnInit {
   readonly title: string = 'Dépenses';
-  expenseList: Signal<Expense[]>;
-  expenseCategoryList: string[];
+  readonly expenseList: Signal<Expense[]>;
+  readonly expenseCategoryList: string[];
+  private selectedCategory: string[] = [];
 
   expenseService: ExpenseService = inject(ExpenseService);
   formBuilder: FormBuilder = inject(FormBuilder);
@@ -45,8 +47,8 @@ export class ExpensesComponent implements OnInit {
       validators: Validators.required,
       nonNullable: true,
     }),
-    category: new FormControl([], {
-      validators: Validators.minLength(1),
+    category: new FormControl(this.selectedCategory, {
+      validators: Validators.required,
       nonNullable: true,
     }),
     date: new FormControl('', {
@@ -54,8 +56,6 @@ export class ExpensesComponent implements OnInit {
       nonNullable: true,
     }),
   });
-
-  private categoryArray: string[] = this.expenseForm.controls.category.value;
 
   private initDatePicker(): void {
     setTimeout(() => {
@@ -74,15 +74,15 @@ export class ExpensesComponent implements OnInit {
   }
 
   hasCategory(category: string): boolean {
-    return this.categoryArray.includes(category);
+    return this.selectedCategory.includes(category);
   }
 
   isCategoryLengthReached(category: string): boolean {
-    if (this.categoryArray.length === 1 && this.hasCategory(category)) {
+    if (this.selectedCategory.length === 1 && this.hasCategory(category)) {
       return false;
     }
 
-    if (this.categoryArray.length > 2 && !this.hasCategory(category)) {
+    if (this.selectedCategory.length > 2 && !this.hasCategory(category)) {
       return false;
     }
 
@@ -93,11 +93,13 @@ export class ExpensesComponent implements OnInit {
     const isChecked: boolean = (event.target as HTMLInputElement).checked;
 
     if (isChecked) {
-      this.categoryArray.push(category);
+      this.selectedCategory.push(category);
     } else {
-      const index = this.categoryArray.indexOf(category);
-      this.categoryArray.splice(index, 1);
+      const index = this.selectedCategory.indexOf(category);
+      this.selectedCategory.splice(index, 1);
     }
+
+    this.expenseForm.controls.category.setValue(this.selectedCategory);
   }
 
   isInvalidAndTouchedOrDirty(formControl: FormControl): boolean {

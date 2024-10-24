@@ -10,7 +10,6 @@ import {
 } from '@angular/forms';
 import { Flowbite } from '../../flowbite/flowbite';
 import { Datepicker } from 'flowbite';
-import { atLeastOneSelectedValidator } from '../../shared/custom-validators';
 
 @Component({
   selector: 'app-expenses',
@@ -113,7 +112,8 @@ export class ExpensesComponent implements OnInit {
       return;
     }
 
-    console.log(this.expenseForm.value);
+    const newExpense = this.expenseForm.getRawValue();
+    this.expenseService.addExpense(newExpense);
     this.expenseForm.reset();
   }
 }

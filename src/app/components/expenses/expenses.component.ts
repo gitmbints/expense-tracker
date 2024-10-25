@@ -21,4 +21,8 @@ export class ExpensesComponent {
   constructor() {
     this.expenseList = this.expenseService.getExpenseList();
   }
+
+  onDeleteExpense(id: string) {
+    this.expenseService.deleteExpense(id);
+  }
 }

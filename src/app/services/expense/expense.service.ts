@@ -38,4 +38,9 @@ export class ExpenseService {
 
   // TODO modify existing expenses entry from expenses signal
   // TODO delete existing expenses entry from expenses signal
+  deleteExpense(id: string): void {
+    this.expenses.update((expenses) => {
+      return expenses.filter((expense) => expense.id !== id);
+    });
+  }
 }

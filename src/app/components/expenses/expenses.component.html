@@ -248,17 +248,23 @@
           </td>
           <td class="px-6 py-4">{{ expense.date }}</td>
           <td class="px-6 py-4">{{ expense.amount }}</td>
-          <td class="px-6 py-4">
+          <td class="flex px-6 py-4">
             <button
               class="border-0 bg-transparent font-medium text-blue-600 hover:underline dark:text-blue-500"
             >
               Modifier
             </button>
+            <button
+              (click)="onDeleteExpense(expense.id)"
+              class="ms-2 border-0 bg-transparent font-medium text-blue-600 hover:underline dark:text-blue-500"
+            >
+              Effacer
+            </button>
           </td>
         </tr>
       } @empty {
         <tr>
-          <td colspan="6" class="py-2 text-gray-500">
+          <td colspan="6" class="py-4 text-center text-gray-500">
             Aucune donnée à afficher
           </td>
         </tr>

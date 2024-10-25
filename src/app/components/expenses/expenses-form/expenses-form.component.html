@@ -1,0 +1,292 @@
+<div
+  id="expense-form-modal"
+  tabindex="-1"
+  aria-hidden="true"
+  class="fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden md:inset-0"
+>
+  <div class="relative max-h-full w-full max-w-md p-4">
+    <!-- Modal content -->
+    <div class="relative rounded-lg bg-white shadow dark:bg-gray-700">
+      <!-- Modal header -->
+      <div
+        class="flex items-center justify-between rounded-t border-b p-4 dark:border-gray-600 md:p-5"
+      >
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          Noter une dépense
+        </h3>
+        <button
+          type="button"
+          class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+          data-modal-toggle="expense-form-modal"
+        >
+          <svg
+            class="h-3 w-3"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 14"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+            />
+          </svg>
+          <span class="sr-only">Close modal</span>
+        </button>
+      </div>
+      <!-- Modal body -->
+      <form
+        class="p-4 md:p-5"
+        [formGroup]="expenseForm"
+        (ngSubmit)="onSubmit()"
+      >
+        <div class="mb-4 grid grid-cols-2 gap-4">
+          <div class="col-span-2">
+            <label
+              for="name"
+              class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+              [class.text-pink-600]="
+                isInvalidAndTouchedOrDirty(expenseForm.controls.name)
+              "
+              >Désignation*</label
+            >
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              class="is-valid"
+              [class.is-invalid]="
+                isInvalidAndTouchedOrDirty(expenseForm.controls.name)
+              "
+              placeholder="Nom votre dépense"
+            />
+            @if (isInvalidAndTouchedOrDirty(expenseForm.controls.name)) {
+              <small class="text-xs font-medium text-pink-600">
+                @if (expenseForm.controls.name.hasError("required")) {
+                  <ng-container>Ce champ est obligatoire.</ng-container>
+                } @else if (expenseForm.controls.name.hasError("minlength")) {
+                  <ng-container>
+                    La désignation doit avoir au minimum 3 caractères.
+                  </ng-container>
+                }
+              </small>
+            }
+          </div>
+          <div class="col-span-2">
+            <label
+              for="amount"
+              class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+              [class.text-pink-600]="
+                isInvalidAndTouchedOrDirty(expenseForm.controls.amount)
+              "
+              >Montant*</label
+            >
+            <input
+              id="amount"
+              type="number"
+              formControlName="amount"
+              class="is-valid"
+              [class.is-invalid]="
+                isInvalidAndTouchedOrDirty(expenseForm.controls.amount)
+              "
+              placeholder="Montant"
+            />
+            @if (isInvalidAndTouchedOrDirty(expenseForm.controls.name)) {
+              <small class="text-xs font-medium text-pink-600">
+                @if (expenseForm.controls.amount.hasError("required")) {
+                  <ng-container>Ce champ est obligatoire.</ng-container>
+                }
+              </small>
+            }
+          </div>
+          <div class="relative col-span-2 self-end">
+            <label
+              for="datepicker-actions"
+              class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+              [class.text-pink-600]="
+                isInvalidAndTouchedOrDirty(expenseForm.controls.category)
+              "
+              >Catégorie</label
+            >
+            <button
+              id="dropdownSearchButton"
+              data-dropdown-toggle="dropdownSearch"
+              data-dropdown-placement="bottom"
+              class="is-valid inline-flex w-full items-center justify-between"
+              [class.is-invalid]="
+                isInvalidAndTouchedOrDirty(expenseForm.controls.category)
+              "
+              type="button"
+            >
+              Catégorie
+              <svg
+                class="ms-3 h-2.5 w-2.5"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 10 6"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m1 1 4 4 4-4"
+                />
+              </svg>
+            </button>
+
+            @if (isInvalidAndTouchedOrDirty(expenseForm.controls.category)) {
+              <small class="text-xs font-medium text-pink-600">
+                Veuillez selectionner au moins une catégorie.
+              </small>
+            }
+
+            <!-- Dropdown menu -->
+            <div
+              id="dropdownSearch"
+              class="z-10 hidden w-full rounded-lg bg-white shadow dark:bg-gray-700"
+            >
+              <div class="p-3">
+                <label for="input-group-search" class="sr-only">Search</label>
+                <div class="relative">
+                  <div
+                    class="rtl:inset-r-0 pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3"
+                  >
+                    <svg
+                      class="h-4 w-4 text-gray-500 dark:text-gray-400"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    id="input-group-search"
+                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 ps-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                    placeholder="Chercher une catégorie"
+                  />
+                </div>
+              </div>
+              <ul
+                class="h-48 overflow-y-auto px-3 pb-3 text-sm text-gray-700 dark:text-gray-200"
+                aria-labelledby="dropdownSearchButton"
+              >
+                @for (category of expenseCategoryList; track category) {
+                  <li>
+                    <div
+                      class="flex items-center rounded ps-2 hover:bg-gray-100 dark:hover:bg-gray-600"
+                    >
+                      <input
+                        [id]="category"
+                        type="checkbox"
+                        name="category"
+                        [value]="category"
+                        [checked]="hasCategory(category)"
+                        [disabled]="!isCategoryLengthReached(category)"
+                        (change)="selectCategory($event, category)"
+                        class="checkbox"
+                        [class.is-checkbox-invalid]="
+                          !isCategoryLengthReached(category)
+                        "
+                      />
+                      <label
+                        [for]="category"
+                        class="label-valid"
+                        [class.is-label-invalid]="
+                          !isCategoryLengthReached(category)
+                        "
+                        >{{ category }}</label
+                      >
+                    </div>
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+          <div class="col-span-2">
+            <label
+              for="datepicker-actions"
+              class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+              [class.text-pink-600]="
+                isInvalidAndTouchedOrDirty(expenseForm.controls.date)
+              "
+              >Date*</label
+            >
+            <div class="relative">
+              <div
+                class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3"
+              >
+                <svg
+                  class="h-4 w-4 text-gray-500 dark:text-gray-400"
+                  [class.text-pink-600]="
+                    isInvalidAndTouchedOrDirty(expenseForm.controls.date)
+                  "
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
+                  />
+                </svg>
+              </div>
+              <input
+                id="datepicker-actions"
+                type="text"
+                formControlName="date"
+                datepicker-buttons
+                datepicker-autoselect-today
+                datepicker
+                class="is-valid"
+                [class.is-invalid]="
+                  isInvalidAndTouchedOrDirty(expenseForm.controls.date)
+                "
+                placeholder="Choisir une date"
+              />
+            </div>
+            @if (isInvalidAndTouchedOrDirty(expenseForm.controls.date)) {
+              <small class="text-xs font-medium text-pink-600">
+                @if (expenseForm.controls.date.hasError("required")) {
+                  <ng-container>Ce champ est obligatoire.</ng-container>
+                }
+              </small>
+            }
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="mb-2 me-2 mt-6 inline-flex items-center rounded-lg bg-gray-800 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+        >
+          <svg
+            class="-ms-1 me-1 h-5 w-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          Enregister
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -7,6 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Datepicker } from 'flowbite';
+import { Flowbite } from '../../../flowbite/flowbite';
 
 @Component({
   selector: 'app-expenses-form',
@@ -15,6 +16,7 @@ import { Datepicker } from 'flowbite';
   templateUrl: './expenses-form.component.html',
   styleUrl: './expenses-form.component.css',
 })
+@Flowbite()
 export class ExpensesFormComponent implements OnInit {
   readonly expenseCategoryList: string[];
 

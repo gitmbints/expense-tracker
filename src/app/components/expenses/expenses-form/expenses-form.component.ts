@@ -1,4 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  OnChanges,
+  OnInit,
+  output,
+} from '@angular/core';
 import { ExpenseService } from '../../../services/expense/expense.service';
 import {
   FormControl,
@@ -8,6 +15,7 @@ import {
 } from '@angular/forms';
 import { Datepicker } from 'flowbite';
 import { Flowbite } from '../../../flowbite/flowbite';
+import { Expense } from '../../../model/expense';
 
 @Component({
   selector: 'app-expenses-form',
@@ -17,8 +25,12 @@ import { Flowbite } from '../../../flowbite/flowbite';
   styleUrl: './expenses-form.component.css',
 })
 @Flowbite()
-export class ExpensesFormComponent implements OnInit {
+export class ExpensesFormComponent implements OnInit, OnChanges {
   readonly expenseCategoryList: string[];
+  isAddForm = input<boolean>();
+  selectedExpense = input<Expense | null>(null);
+  isCloseModal = output();
+  isOpen = input.required<boolean>();
 
   expenseService: ExpenseService = inject(ExpenseService);
 
@@ -28,6 +40,17 @@ export class ExpensesFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initDatePicker();
+  }
+
+  ngOnChanges(): void {
+    if (this.selectedExpense()) {
+      this.expenseForm.patchValue({
+        name: this.selectedExpense()?.name,
+        amount: this.selectedExpense()?.amount,
+        category: this.selectedExpense()?.category,
+        date: this.selectedExpense()?.date,
+      });
+    }
   }
 
   private initDatePicker(): void {
@@ -113,7 +136,18 @@ export class ExpensesFormComponent implements OnInit {
     }
 
     const newExpense = this.expenseForm.getRawValue();
-    this.expenseService.addExpense(newExpense);
+
+    if (this.isAddForm()) {
+      this.expenseService.addExpense(newExpense);
+    } else {
+      this.expenseService.modifyExpense(this.selectedExpense()?.id, newExpense);
+    }
+
     this.expenseForm.reset();
+    this.closeModal();
+  }
+
+  closeModal(): void {
+    this.isCloseModal.emit();
   }
 }

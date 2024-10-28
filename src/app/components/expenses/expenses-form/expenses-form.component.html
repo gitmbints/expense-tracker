@@ -2,7 +2,7 @@
   id="expense-form-modal"
   tabindex="-1"
   aria-hidden="true"
-  class="fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden md:inset-0"
+  class="fixed left-0 right-0 top-0 z-50 flex h-dvh max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/75 md:inset-0"
 >
   <div class="relative max-h-full w-full max-w-md p-4">
     <!-- Modal content -->
@@ -17,7 +17,7 @@
         <button
           type="button"
           class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-          data-modal-toggle="expense-form-modal"
+          (click)="closeModal()"
         >
           <svg
             class="h-3 w-3"

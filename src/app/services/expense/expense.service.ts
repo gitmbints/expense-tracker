@@ -37,6 +37,14 @@ export class ExpenseService {
   }
 
   // TODO modify existing expenses entry from expenses signal
+  modifyExpense(id: string | undefined, newExpense: Omit<Expense, 'id'>): void {
+    this.expenses.update((expenses) => {
+      return expenses.map((expense) =>
+        expense.id === id ? { ...newExpense, id } : expense,
+      );
+    });
+  }
+
   // TODO delete existing expenses entry from expenses signal
   deleteExpense(id: string): void {
     this.expenses.update((expenses) => {

@@ -3,10 +3,9 @@
 <div class="mt-8">
   <!-- Modal toggle -->
   <button
-    data-modal-target="expense-form-modal"
-    data-modal-toggle="expense-form-modal"
     class="mb-2 me-2 rounded-lg bg-gray-800 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
     type="button"
+    (click)="onAddExpense()"
   >
     Noter une dépense
   </button>
@@ -251,6 +250,8 @@
           <td class="flex px-6 py-4">
             <button
               class="border-0 bg-transparent font-medium text-blue-600 hover:underline dark:text-blue-500"
+              (click)="onEditExpense(expense)"
+              type="button"
             >
               Modifier
             </button>
@@ -274,4 +275,12 @@
 </div>
 
 <!-- Add expense modal -->
-<app-expenses-form></app-expenses-form>
+
+@if (isShowModal()) {
+  <app-expenses-form
+    [isOpen]="isShowModal()"
+    [selectedExpense]="selectedExpense"
+    [isAddForm]="isAddForm()"
+    (isCloseModal)="onCloseModal()"
+  ></app-expenses-form>
+}

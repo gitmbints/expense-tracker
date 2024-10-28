@@ -27,10 +27,11 @@ import { Expense } from '../../../model/expense';
 @Flowbite()
 export class ExpensesFormComponent implements OnInit, OnChanges {
   readonly expenseCategoryList: string[];
-  isAddForm = input<boolean>();
-  selectedExpense = input<Expense | null>(null);
-  isCloseModal = output();
-  isOpen = input.required<boolean>();
+
+  readonly isAddForm = input.required<boolean>();
+  readonly selectedExpense = input<Expense | null>(null);
+
+  readonly isCloseModal = output();
 
   expenseService: ExpenseService = inject(ExpenseService);
 
@@ -43,12 +44,14 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(): void {
-    if (this.selectedExpense()) {
+    const expense = this.selectedExpense();
+
+    if (expense) {
       this.expenseForm.patchValue({
-        name: this.selectedExpense()?.name,
-        amount: this.selectedExpense()?.amount,
-        category: this.selectedExpense()?.category,
-        date: this.selectedExpense()?.date,
+        name: expense.name,
+        amount: expense.amount,
+        category: expense.category,
+        date: expense.date,
       });
     }
   }
@@ -88,8 +91,12 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
     }),
   });
 
+  get expenseFormControls() {
+    return this.expenseForm.controls;
+  }
+
   private get selectedCategory(): string[] {
-    return this.expenseForm.controls.category.value;
+    return this.expenseFormControls.category.value;
   }
 
   hasCategory(category: string): boolean {
@@ -97,11 +104,12 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
   }
 
   isCategoryLengthReached(category: string): boolean {
-    if (this.selectedCategory.length === 1 && this.hasCategory(category)) {
+    const selectedCategoryLength = this.selectedCategory.length;
+    if (selectedCategoryLength === 1 && this.hasCategory(category)) {
       return false;
     }
 
-    if (this.selectedCategory.length > 2 && !this.hasCategory(category)) {
+    if (selectedCategoryLength > 2 && !this.hasCategory(category)) {
       return false;
     }
 
@@ -112,14 +120,13 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
     const isChecked: boolean = (event.target as HTMLInputElement).checked;
 
     if (isChecked) {
-      this.expenseForm.controls.category.setValue([
+      this.expenseFormControls.category.setValue([
         ...this.selectedCategory,
         category,
       ]);
     } else {
-      const index = this.selectedCategory.indexOf(category);
-      this.expenseForm.controls.category.setValue(
-        this.selectedCategory.splice(index, 1),
+      this.expenseFormControls.category.setValue(
+        this.selectedCategory.filter((cat) => cat !== category),
       );
     }
   }
@@ -140,7 +147,7 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
     if (this.isAddForm()) {
       this.expenseService.addExpense(newExpense);
     } else {
-      this.expenseService.modifyExpense(this.selectedExpense()?.id, newExpense);
+      this.expenseService.updateExpense(this.selectedExpense()?.id, newExpense);
     }
 
     this.expenseForm.reset();

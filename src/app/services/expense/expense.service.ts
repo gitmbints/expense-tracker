@@ -24,7 +24,6 @@ export class ExpenseService {
     return Array.from(uniqueCategories);
   }
 
-  // TODO add new expenses entry into expenses signal
   addExpense(expense: Omit<Expense, 'id'>): void {
     this.expenses.update((expenses) => [
       ...expenses,
@@ -36,7 +35,6 @@ export class ExpenseService {
     return `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
   }
 
-  // TODO modify existing expenses entry from expenses signal
   updateExpense(id: string | undefined, newExpense: Omit<Expense, 'id'>): void {
     this.expenses.update((expenses) => {
       return expenses.map((expense) =>
@@ -45,7 +43,6 @@ export class ExpenseService {
     });
   }
 
-  // TODO delete existing expenses entry from expenses signal
   deleteExpense(id: string): void {
     this.expenses.update((expenses) => {
       return expenses.filter((expense) => expense.id !== id);

@@ -1,7 +1,7 @@
-export interface Expense {
+export type Expense = {
   id: string;
   name: string;
   amount: number;
-  category: string[];
+  category: Array<string>;
   date: string;
-}
+};

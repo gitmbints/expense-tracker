@@ -12,7 +12,11 @@
         class="flex items-center justify-between rounded-t border-b p-4 dark:border-gray-600 md:p-5"
       >
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-          Noter une dépense
+          @if (isAddForm()) {
+            <ng-container> Noter une dépense </ng-container>
+          } @else {
+            <ng-container> Modifier une dépense </ng-container>
+          }
         </h3>
         <button
           type="button"

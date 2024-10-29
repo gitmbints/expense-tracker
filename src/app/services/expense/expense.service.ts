@@ -1,6 +1,7 @@
-import { Injectable, Signal, signal } from '@angular/core';
+import { inject, Injectable, Signal, signal } from '@angular/core';
 import * as expensesData from '../../data/expenses.json';
 import { Expense } from '../../model/expense';
+import { SupabaseService } from '../supabase.service';
 
 @Injectable({
   providedIn: 'root',

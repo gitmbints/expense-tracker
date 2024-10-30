@@ -1,43 +1,43 @@
-import { inject, Injectable, OnInit, Signal, signal } from '@angular/core';
-// import * as expensesData from '../../data/expenses.json';
+import { inject, Injectable, Signal, signal } from '@angular/core';
 import { Expense } from '../../model/expense';
 import { SupabaseService } from '../supabase.service';
+import { catchError, from, map, Observable, of, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpenseService {
-  expensesData: Expense[] = [];
-
-  private readonly expenses = signal<Expense[]>(this.expensesData);
+  private readonly expenses = signal<Expense[]>([]);
 
   getExpenseList(): Signal<Expense[]> {
     return this.expenses.asReadonly();
   }
 
-  supabase: SupabaseService = inject(SupabaseService);
+  private supabase: SupabaseService = inject(SupabaseService);
 
   constructor() {
-    this.fetchExpenseList();
+    this.loadExpenses();
   }
 
-  async fetchExpenseList() {
-    try {
-      const { data, error } = await this.supabase.fetchExpenses();
+  // Observable-based fetching function with RxJS operators
+  private fetchExpenses$(): Observable<Expense[]> {
+    return from(this.supabase.fetchExpenses()).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return data || [];
+      }),
+      catchError((err) => {
+        console.error('Failed to fetch expenses: ', err.message);
+        return of([]);
+      }),
+    );
+  }
 
-      if (data) {
-        this.expensesData = data;
-        this.expenses.set(data);
-      }
-
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
-    }
+  // Load expenses and update the signal with data
+  private loadExpenses() {
+    this.fetchExpenses$()
+      .pipe(tap((data) => this.expenses.set(data)))
+      .subscribe();
   }
 
   getExpenseCategoryList(): string[] {

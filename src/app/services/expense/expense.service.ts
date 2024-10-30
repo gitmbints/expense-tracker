@@ -1,5 +1,5 @@
-import { inject, Injectable, Signal, signal } from '@angular/core';
-import * as expensesData from '../../data/expenses.json';
+import { inject, Injectable, OnInit, Signal, signal } from '@angular/core';
+// import * as expensesData from '../../data/expenses.json';
 import { Expense } from '../../model/expense';
 import { SupabaseService } from '../supabase.service';
 
@@ -7,10 +7,37 @@ import { SupabaseService } from '../supabase.service';
   providedIn: 'root',
 })
 export class ExpenseService {
-  private readonly expenses = signal<Expense[]>(expensesData.data);
+  expensesData: Expense[] = [];
+
+  private readonly expenses = signal<Expense[]>(this.expensesData);
 
   getExpenseList(): Signal<Expense[]> {
     return this.expenses.asReadonly();
+  }
+
+  supabase: SupabaseService = inject(SupabaseService);
+
+  constructor() {
+    this.fetchExpenseList();
+  }
+
+  async fetchExpenseList() {
+    try {
+      const { data, error } = await this.supabase.fetchExpenses();
+
+      if (data) {
+        this.expensesData = data;
+        this.expenses.set(data);
+      }
+
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
+    }
   }
 
   getExpenseCategoryList(): string[] {

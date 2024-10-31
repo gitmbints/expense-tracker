@@ -17,7 +17,7 @@ export class SupabaseService {
     );
   }
 
-  fetchExpenses() {
-    return this.supabase.from('expenses').select('*').returns<Expense[]>();
-  }
+  // fetchExpenses() {
+  //   return this.supabase.from('expenses').select('*').returns<Expense[]>();
+  // }
 }

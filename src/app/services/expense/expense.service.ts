@@ -38,13 +38,6 @@ export class ExpenseService {
     );
   }
 
-  // Load expenses and update the signal with data
-  private loadExpenses(): void {
-    this.fetchExpenses$()
-      .pipe(tap((data) => this.expenses.set(data)))
-      .subscribe();
-  }
-
   private createExpense$(expense: Omit<Expense, 'id'>): Observable<Expense[]> {
     return from(
       this.supabaseService.supabase.from('expenses').insert(expense).select(),
@@ -54,10 +47,58 @@ export class ExpenseService {
         return (data as unknown as Expense[]) || [];
       }),
       catchError((err) => {
-        console.error('Failed to insert expenses: ', err.message);
+        console.error('Failed to insert expense: ', err.message);
         return EMPTY;
       }),
     );
+  }
+
+  private editExpense$(
+    id: string,
+    newExpense: Omit<Expense, 'id'>,
+  ): Observable<Expense[]> {
+    return from(
+      this.supabaseService.supabase
+        .from('expenses')
+        .update(newExpense)
+        .eq('id', id)
+        .select(),
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return (data as unknown as Expense[]) || [];
+      }),
+      catchError((err) => {
+        console.error('Failed to update expense: ', err.message);
+        return EMPTY;
+      }),
+    );
+  }
+
+  private removeExpense$(id: string): Observable<Expense[]> {
+    return from(
+      this.supabaseService.supabase
+        .from('expenses')
+        .delete()
+        .eq('id', id)
+        .select(),
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return (data as unknown as Expense[]) || [];
+      }),
+      catchError((err) => {
+        console.error('Failed to update expense: ', err.message);
+        return EMPTY;
+      }),
+    );
+  }
+
+  // Load expenses and update the signal with data
+  private loadExpenses(): void {
+    this.fetchExpenses$()
+      .pipe(tap((data) => this.expenses.set(data)))
+      .subscribe();
   }
 
   getExpenseCategoryList(): string[] {
@@ -84,21 +125,35 @@ export class ExpenseService {
       .subscribe();
   }
 
-  private generateId(): string {
-    return `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-  }
-
   updateExpense(id: string | undefined, newExpense: Omit<Expense, 'id'>): void {
-    this.expenses.update((expenses) => {
-      return expenses.map((expense) =>
-        expense.id === id ? { ...newExpense, id } : expense,
-      );
-    });
+    if (id) {
+      this.editExpense$(id, newExpense)
+        .pipe(
+          tap((data) => {
+            if (data.length > 0) {
+              this.expenses.update((expenses) => {
+                return expenses.map((expense) =>
+                  expense.id === id ? { ...data[0], id } : expense,
+                );
+              });
+            }
+          }),
+        )
+        .subscribe();
+    }
   }
 
   deleteExpense(id: string): void {
-    this.expenses.update((expenses) => {
-      return expenses.filter((expense) => expense.id !== id);
-    });
+    this.removeExpense$(id)
+      .pipe(
+        tap((data) => {
+          if (data.length > 0) {
+            this.expenses.update((expenses) => {
+              return expenses.filter((expense) => expense.id !== id);
+            });
+          }
+        }),
+      )
+      .subscribe();
   }
 }

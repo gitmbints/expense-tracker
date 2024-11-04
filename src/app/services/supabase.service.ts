@@ -16,8 +16,4 @@ export class SupabaseService {
       environment.supabaseKey,
     );
   }
-
-  // fetchExpenses() {
-  //   return this.supabase.from('expenses').select('*').returns<Expense[]>();
-  // }
 }

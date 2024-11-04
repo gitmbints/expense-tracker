@@ -15,7 +15,7 @@ import {
 } from '@angular/forms';
 import { Datepicker } from 'flowbite';
 import { Flowbite } from '../../../flowbite/flowbite';
-import { Expense } from '../../../model/expense';
+import { Expense } from '../../../models/expense';
 
 @Component({
   selector: 'app-expenses-form',

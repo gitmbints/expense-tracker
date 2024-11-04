@@ -1,7 +1,7 @@
 import { inject, Injectable, Signal, signal } from '@angular/core';
-import { Expense } from '../../model/expense';
+import { Expense } from '../../models/expense';
 import { SupabaseService } from '../supabase.service';
-import { catchError, EMPTY, from, map, Observable, of, tap } from 'rxjs';
+import { catchError, EMPTY, from, map, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -22,35 +22,14 @@ export class ExpenseService {
   // Observable-based fetching function with RxJS operators
   private fetchExpenses$(): Observable<Expense[]> {
     return from(
-      this.supabaseService.supabase
-        .from('expenses')
-        .select('*')
-        .returns<Expense[]>(),
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return data || [];
-      }),
-      catchError((err) => {
-        console.error('Failed to fetch expenses: ', err.message);
-        return of([]);
-      }),
-    );
+      this.supabaseService.supabase.from('expenses').select('*'),
+    ).pipe(map(this.processResponse), catchError(this.processError));
   }
 
   private createExpense$(expense: Omit<Expense, 'id'>): Observable<Expense[]> {
     return from(
       this.supabaseService.supabase.from('expenses').insert(expense).select(),
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return (data as unknown as Expense[]) || [];
-      }),
-      catchError((err) => {
-        console.error('Failed to insert expense: ', err.message);
-        return EMPTY;
-      }),
-    );
+    ).pipe(map(this.processResponse), catchError(this.processError));
   }
 
   private editExpense$(
@@ -63,16 +42,7 @@ export class ExpenseService {
         .update(newExpense)
         .eq('id', id)
         .select(),
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return (data as unknown as Expense[]) || [];
-      }),
-      catchError((err) => {
-        console.error('Failed to update expense: ', err.message);
-        return EMPTY;
-      }),
-    );
+    ).pipe(map(this.processResponse), catchError(this.processError));
   }
 
   private removeExpense$(id: string): Observable<Expense[]> {
@@ -82,16 +52,23 @@ export class ExpenseService {
         .delete()
         .eq('id', id)
         .select(),
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return (data as unknown as Expense[]) || [];
-      }),
-      catchError((err) => {
-        console.error('Failed to update expense: ', err.message);
-        return EMPTY;
-      }),
-    );
+    ).pipe(map(this.processResponse), catchError(this.processError));
+  }
+
+  private processResponse(response: { data: any; error: any }): Expense[] {
+    const { data, error } = response;
+
+    if (error) {
+      throw new Error(
+        `Something on the request went wrong: ${response.error.message}`,
+      );
+    }
+    return (data as Expense[]) || [];
+  }
+
+  private processError(err: any): Observable<never> {
+    console.error('Failed to process the response: ', err.message);
+    return EMPTY;
   }
 
   // Load expenses and update the signal with data

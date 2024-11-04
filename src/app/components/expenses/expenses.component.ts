@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, Signal } from '@angular/core';
 import { ExpenseService } from '../../services/expense/expense.service';
-import { Expense } from '../../model/expense';
+import { Expense } from '../../models/expense';
 import { ExpensesFormComponent } from './expenses-form/expenses-form.component';
 import { DatePipe } from '@angular/common';
 import { SupabaseService } from '../../services/supabase.service';

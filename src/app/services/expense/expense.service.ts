@@ -8,9 +8,14 @@ import { catchError, EMPTY, from, map, Observable, tap } from 'rxjs';
 })
 export class ExpenseService {
   private readonly expenses = signal<Expense[]>([]);
+  private readonly isLoading = signal(false);
 
   getExpenseList(): Signal<Expense[]> {
     return this.expenses.asReadonly();
+  }
+
+  getIsLoading(): Signal<boolean> {
+    return this.isLoading.asReadonly();
   }
 
   private supabaseService: SupabaseService = inject(SupabaseService);
@@ -68,13 +73,20 @@ export class ExpenseService {
 
   private processError(err: any): Observable<never> {
     console.error('Failed to process the response: ', err.message);
+    this.isLoading.set(false);
     return EMPTY;
   }
 
   // Load expenses and update the signal with data
   private loadExpenses(): void {
+    this.isLoading.set(true);
     this.fetchExpenses$()
-      .pipe(tap((data) => this.expenses.set(data)))
+      .pipe(
+        tap((data) => {
+          this.expenses.set(data);
+          this.isLoading.set(false);
+        }),
+      )
       .subscribe();
   }
 

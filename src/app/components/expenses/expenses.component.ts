@@ -18,11 +18,13 @@ export class ExpensesComponent {
   selectedExpense: Expense | null = null;
   readonly isAddForm = signal<boolean>(true);
   readonly isShowModal = signal<boolean>(false);
+  readonly isLoading: Signal<boolean>;
 
   expenseService: ExpenseService = inject(ExpenseService);
 
   constructor() {
     this.expenseList = this.expenseService.getExpenseList();
+    this.isLoading = this.expenseService.getIsLoading();
   }
 
   onAddExpense(): void {

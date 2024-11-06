@@ -1,14 +1,14 @@
-import { Component, inject, OnInit, signal, Signal } from '@angular/core';
+import { Component, inject, signal, Signal } from '@angular/core';
 import { ExpenseService } from '../../services/expense/expense.service';
 import { Expense } from '../../models/expense';
 import { ExpensesFormComponent } from './expenses-form/expenses-form.component';
 import { DatePipe } from '@angular/common';
-import { SupabaseService } from '../../services/supabase.service';
+import { ModalDeleteComponent } from '../ui/modal-delete/modal-delete.component';
 
 @Component({
   selector: 'app-expenses',
   standalone: true,
-  imports: [ExpensesFormComponent, DatePipe],
+  imports: [ExpensesFormComponent, DatePipe, ModalDeleteComponent],
   templateUrl: './expenses.component.html',
   styleUrl: './expenses.component.css',
 })
@@ -19,6 +19,7 @@ export class ExpensesComponent {
   readonly isAddForm = signal<boolean>(true);
   readonly isShowModal = signal<boolean>(false);
   readonly isLoading: Signal<boolean>;
+  readonly isShowModalDelete = signal<boolean>(false);
 
   expenseService: ExpenseService = inject(ExpenseService);
 
@@ -36,11 +37,16 @@ export class ExpensesComponent {
   }
 
   onDeleteExpense(id: string) {
-    this.expenseService.deleteExpense(id);
+    //this.expenseService.deleteExpense(id);
+    this.isShowModalDelete.set(true);
   }
 
   onCloseModal(): void {
     this.isShowModal.set(false);
+  }
+
+  onCloseModalDelete(): void {
+    this.isShowModalDelete.set(false);
   }
 
   private openModal(isAddForm: boolean, expense: Expense | null): void {

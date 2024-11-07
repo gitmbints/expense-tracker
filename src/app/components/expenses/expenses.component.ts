@@ -16,12 +16,13 @@ export class ExpensesComponent {
   readonly title: string = 'Dépenses';
   readonly expenseList: Signal<Expense[]>;
   selectedExpense: Expense | null = null;
+  expenseId!: string;
   readonly isAddForm = signal<boolean>(true);
   readonly isShowModal = signal<boolean>(false);
   readonly isLoading: Signal<boolean>;
   readonly isShowModalDelete = signal<boolean>(false);
 
-  expenseService: ExpenseService = inject(ExpenseService);
+  private expenseService: ExpenseService = inject(ExpenseService);
 
   constructor() {
     this.expenseList = this.expenseService.getExpenseList();
@@ -37,8 +38,8 @@ export class ExpensesComponent {
   }
 
   onDeleteExpense(id: string) {
-    //this.expenseService.deleteExpense(id);
     this.isShowModalDelete.set(true);
+    this.expenseId = id;
   }
 
   onCloseModal(): void {

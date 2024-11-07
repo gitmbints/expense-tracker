@@ -5,3 +5,8 @@ export type Expense = {
   category: Array<string>;
   date: string;
 };
+
+export type Category = {
+  id: string;
+  name: string;
+};

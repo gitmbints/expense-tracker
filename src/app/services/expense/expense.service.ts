@@ -1,5 +1,5 @@
 import { inject, Injectable, Signal, signal } from '@angular/core';
-import { Expense } from '../../models/expense';
+import { Category, Expense } from '../../models/expense';
 import { SupabaseService } from '../supabase.service';
 import { catchError, EMPTY, from, map, Observable, tap } from 'rxjs';
 
@@ -9,6 +9,7 @@ import { catchError, EMPTY, from, map, Observable, tap } from 'rxjs';
 export class ExpenseService {
   private readonly expenses = signal<Expense[]>([]);
   private readonly isLoading = signal(false);
+  private readonly categoryList = signal<Category[]>([]);
 
   getExpenseList(): Signal<Expense[]> {
     return this.expenses.asReadonly();
@@ -18,10 +19,15 @@ export class ExpenseService {
     return this.isLoading.asReadonly();
   }
 
+  getCategoryList(): Signal<Category[]> {
+    return this.categoryList.asReadonly();
+  }
+
   private supabaseService: SupabaseService = inject(SupabaseService);
 
   constructor() {
     this.loadExpenses();
+    this.loadCategoryList();
   }
 
   // Observable-based fetching function with RxJS operators
@@ -60,6 +66,28 @@ export class ExpenseService {
     ).pipe(map(this.processResponse), catchError(this.processError));
   }
 
+  private fetchCategoryList$(): Observable<Category[]> {
+    return from(
+      this.supabaseService.supabase.from('categories').select('*'),
+    ).pipe(
+      map((response: { data: any; error: any }): Category[] => {
+        const { data, error } = response;
+
+        if (error) {
+          throw new Error(
+            `Something on the request went wrong: ${response.error.message}`,
+          );
+        }
+        return (data as Category[]) || [];
+      }),
+      catchError((err: any): Observable<never> => {
+        console.error('Failed to process the response: ', err.message);
+        this.isLoading.set(false);
+        return EMPTY;
+      }),
+    );
+  }
+
   private processResponse(response: { data: any; error: any }): Expense[] {
     const { data, error } = response;
 
@@ -85,6 +113,16 @@ export class ExpenseService {
         tap((data) => {
           this.expenses.set(data);
           this.isLoading.set(false);
+        }),
+      )
+      .subscribe();
+  }
+
+  private loadCategoryList(): void {
+    this.fetchCategoryList$()
+      .pipe(
+        tap((data) => {
+          this.categoryList.set(data);
         }),
       )
       .subscribe();

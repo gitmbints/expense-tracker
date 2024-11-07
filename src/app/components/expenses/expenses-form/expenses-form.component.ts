@@ -5,6 +5,7 @@ import {
   OnChanges,
   OnInit,
   output,
+  Signal,
 } from '@angular/core';
 import { ExpenseService } from '../../../services/expense/expense.service';
 import {
@@ -15,7 +16,7 @@ import {
 } from '@angular/forms';
 import { Datepicker } from 'flowbite';
 import { Flowbite } from '../../../flowbite/flowbite';
-import { Expense } from '../../../models/expense';
+import { Category, Expense } from '../../../models/expense';
 
 @Component({
   selector: 'app-expenses-form',
@@ -26,7 +27,7 @@ import { Expense } from '../../../models/expense';
 })
 @Flowbite()
 export class ExpensesFormComponent implements OnInit, OnChanges {
-  readonly expenseCategoryList: string[];
+  readonly expenseCategoryList: Signal<Category[]>;
 
   readonly isAddForm = input.required<boolean>();
   readonly selectedExpense = input<Expense | null>(null);
@@ -36,7 +37,7 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
   expenseService: ExpenseService = inject(ExpenseService);
 
   constructor() {
-    this.expenseCategoryList = this.expenseService.getExpenseCategoryList();
+    this.expenseCategoryList = this.expenseService.getCategoryList();
   }
 
   ngOnInit(): void {

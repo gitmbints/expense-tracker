@@ -82,7 +82,7 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
       validators: Validators.required,
       nonNullable: true,
     }),
-    category: new FormControl<string[]>([], {
+    category: new FormControl<Category[]>([], {
       validators: Validators.required,
       nonNullable: true,
     }),
@@ -96,15 +96,15 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
     return this.expenseForm.controls;
   }
 
-  private get selectedCategory(): string[] {
+  private get selectedCategory(): Category[] {
     return this.expenseFormControls.category.value;
   }
 
-  hasCategory(category: string): boolean {
+  hasCategory(category: Category): boolean {
     return this.selectedCategory.includes(category);
   }
 
-  isCategoryLengthReached(category: string): boolean {
+  isCategoryLengthReached(category: Category): boolean {
     const selectedCategoryLength = this.selectedCategory.length;
     if (selectedCategoryLength === 1 && this.hasCategory(category)) {
       return false;
@@ -117,7 +117,7 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
     return true;
   }
 
-  selectCategory(event: Event, category: string): void {
+  selectCategory(event: Event, category: Category): void {
     const isChecked: boolean = (event.target as HTMLInputElement).checked;
 
     if (isChecked) {
@@ -132,8 +132,8 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
     }
   }
 
-  isInvalidAndTouchedOrDirty(formControl: FormControl): boolean {
-    return formControl.invalid && (formControl.touched || formControl.dirty);
+  isInvalidAndTouched(formControl: FormControl): boolean {
+    return formControl.invalid && formControl.touched;
   }
 
   onSubmit(): void {
@@ -144,6 +144,7 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
     }
 
     const newExpense = this.expenseForm.getRawValue();
+    //const categoriesIds = newExpense.category.map((category) => category.id);
 
     if (this.isAddForm()) {
       this.expenseService.addExpense(newExpense);

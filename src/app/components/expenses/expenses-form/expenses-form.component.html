@@ -53,7 +53,7 @@
               for="name"
               class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
               [class.text-pink-600]="
-                isInvalidAndTouchedOrDirty(expenseForm.controls.name)
+                isInvalidAndTouched(expenseForm.controls.name)
               "
               >Désignation*</label
             >
@@ -63,11 +63,11 @@
               formControlName="name"
               class="is-valid"
               [class.is-invalid]="
-                isInvalidAndTouchedOrDirty(expenseForm.controls.name)
+                isInvalidAndTouched(expenseForm.controls.name)
               "
               placeholder="Nom votre dépense"
             />
-            @if (isInvalidAndTouchedOrDirty(expenseForm.controls.name)) {
+            @if (isInvalidAndTouched(expenseForm.controls.name)) {
               <small class="text-xs font-medium text-pink-600">
                 @if (expenseForm.controls.name.hasError("required")) {
                   <ng-container>Ce champ est obligatoire.</ng-container>
@@ -84,7 +84,7 @@
               for="amount"
               class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
               [class.text-pink-600]="
-                isInvalidAndTouchedOrDirty(expenseForm.controls.amount)
+                isInvalidAndTouched(expenseForm.controls.amount)
               "
               >Montant*</label
             >
@@ -94,11 +94,11 @@
               formControlName="amount"
               class="is-valid"
               [class.is-invalid]="
-                isInvalidAndTouchedOrDirty(expenseForm.controls.amount)
+                isInvalidAndTouched(expenseForm.controls.amount)
               "
               placeholder="Montant"
             />
-            @if (isInvalidAndTouchedOrDirty(expenseForm.controls.name)) {
+            @if (isInvalidAndTouched(expenseForm.controls.name)) {
               <small class="text-xs font-medium text-pink-600">
                 @if (expenseForm.controls.amount.hasError("required")) {
                   <ng-container>Ce champ est obligatoire.</ng-container>
@@ -111,7 +111,7 @@
               for="datepicker-actions"
               class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
               [class.text-pink-600]="
-                isInvalidAndTouchedOrDirty(expenseForm.controls.category)
+                isInvalidAndTouched(expenseForm.controls.category)
               "
               >Catégorie</label
             >
@@ -121,7 +121,7 @@
               data-dropdown-placement="bottom"
               class="is-valid inline-flex w-full items-center justify-between"
               [class.is-invalid]="
-                isInvalidAndTouchedOrDirty(expenseForm.controls.category)
+                isInvalidAndTouched(expenseForm.controls.category)
               "
               type="button"
             >
@@ -143,7 +143,7 @@
               </svg>
             </button>
 
-            @if (isInvalidAndTouchedOrDirty(expenseForm.controls.category)) {
+            @if (isInvalidAndTouched(expenseForm.controls.category)) {
               <small class="text-xs font-medium text-pink-600">
                 Veuillez selectionner au moins une catégorie.
               </small>
@@ -197,20 +197,19 @@
                         [id]="category.id"
                         type="checkbox"
                         name="category"
-                        [value]="category.name"
-                        [checked]="hasCategory(category.name)"
-                        [disabled]="!isCategoryLengthReached(category.name)"
-                        (change)="selectCategory($event, category.name)"
+                        [checked]="hasCategory(category)"
+                        [disabled]="!isCategoryLengthReached(category)"
+                        (change)="selectCategory($event, category)"
                         class="checkbox"
                         [class.is-checkbox-invalid]="
-                          !isCategoryLengthReached(category.name)
+                          !isCategoryLengthReached(category)
                         "
                       />
                       <label
                         [for]="category"
                         class="label-valid"
                         [class.is-label-invalid]="
-                          !isCategoryLengthReached(category.name)
+                          !isCategoryLengthReached(category)
                         "
                         >{{ category.name }}</label
                       >
@@ -225,7 +224,7 @@
               for="datepicker-actions"
               class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
               [class.text-pink-600]="
-                isInvalidAndTouchedOrDirty(expenseForm.controls.date)
+                isInvalidAndTouched(expenseForm.controls.date)
               "
               >Date*</label
             >
@@ -236,7 +235,7 @@
                 <svg
                   class="h-4 w-4 text-gray-500 dark:text-gray-400"
                   [class.text-pink-600]="
-                    isInvalidAndTouchedOrDirty(expenseForm.controls.date)
+                    isInvalidAndTouched(expenseForm.controls.date)
                   "
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
@@ -257,12 +256,12 @@
                 datepicker
                 class="is-valid"
                 [class.is-invalid]="
-                  isInvalidAndTouchedOrDirty(expenseForm.controls.date)
+                  isInvalidAndTouched(expenseForm.controls.date)
                 "
                 placeholder="Choisir une date"
               />
             </div>
-            @if (isInvalidAndTouchedOrDirty(expenseForm.controls.date)) {
+            @if (isInvalidAndTouched(expenseForm.controls.date)) {
               <small class="text-xs font-medium text-pink-600">
                 @if (expenseForm.controls.date.hasError("required")) {
                   <ng-container>Ce champ est obligatoire.</ng-container>

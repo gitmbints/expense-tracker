@@ -111,7 +111,7 @@
               for="datepicker-actions"
               class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
               [class.text-pink-600]="
-                isInvalidAndTouched(expenseForm.controls.category)
+                isInvalidAndTouched(expenseForm.controls.categories)
               "
               >Catégorie</label
             >
@@ -121,7 +121,7 @@
               data-dropdown-placement="bottom"
               class="is-valid inline-flex w-full items-center justify-between"
               [class.is-invalid]="
-                isInvalidAndTouched(expenseForm.controls.category)
+                isInvalidAndTouched(expenseForm.controls.categories)
               "
               type="button"
             >
@@ -143,7 +143,7 @@
               </svg>
             </button>
 
-            @if (isInvalidAndTouched(expenseForm.controls.category)) {
+            @if (isInvalidAndTouched(expenseForm.controls.categories)) {
               <small class="text-xs font-medium text-pink-600">
                 Veuillez selectionner au moins une catégorie.
               </small>

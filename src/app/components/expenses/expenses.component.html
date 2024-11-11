@@ -267,10 +267,10 @@
                   {{ expense.name }}
                 </th>
                 <td class="flex flex-wrap px-6 py-4">
-                  @for (category of expense.category; track category) {
+                  @for (category of expense.categories; track category) {
                     <span
                       class="me-2 rounded bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-300"
-                      >{{ category }}</span
+                      >{{ category.name }}</span
                     >
                   }
                 </td>

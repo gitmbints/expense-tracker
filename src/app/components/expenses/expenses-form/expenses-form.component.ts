@@ -51,7 +51,7 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
       this.expenseForm.patchValue({
         name: expense.name,
         amount: expense.amount,
-        category: expense.category,
+        categories: expense.categories,
         date: expense.date,
       });
     }
@@ -82,7 +82,7 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
       validators: Validators.required,
       nonNullable: true,
     }),
-    category: new FormControl<Category[]>([], {
+    categories: new FormControl<Category[]>([], {
       validators: Validators.required,
       nonNullable: true,
     }),
@@ -97,7 +97,7 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
   }
 
   private get selectedCategory(): Category[] {
-    return this.expenseFormControls.category.value;
+    return this.expenseFormControls.categories.value;
   }
 
   hasCategory(category: Category): boolean {
@@ -121,12 +121,12 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
     const isChecked: boolean = (event.target as HTMLInputElement).checked;
 
     if (isChecked) {
-      this.expenseFormControls.category.setValue([
+      this.expenseFormControls.categories.setValue([
         ...this.selectedCategory,
         category,
       ]);
     } else {
-      this.expenseFormControls.category.setValue(
+      this.expenseFormControls.categories.setValue(
         this.selectedCategory.filter((cat) => cat !== category),
       );
     }

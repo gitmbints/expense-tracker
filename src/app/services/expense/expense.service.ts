@@ -33,7 +33,9 @@ export class ExpenseService {
   // Observable-based fetching function with RxJS operators
   private fetchExpenses$(): Observable<Expense[]> {
     return from(
-      this.supabaseService.supabase.from('expenses').select('*'),
+      this.supabaseService.supabase
+        .from('expenses')
+        .select(`id, name, amount, date, categories (name)`),
     ).pipe(map(this.processResponse<Expense>), catchError(this.processError));
   }
 
@@ -46,7 +48,8 @@ export class ExpenseService {
           amount: expense.amount,
           date: expense.date,
         })
-        .select(),
+        .select()
+        .single(),
     ).pipe(
       switchMap((response: { data: any; error: any }) => {
         const createdExpense = response.data;
@@ -55,13 +58,13 @@ export class ExpenseService {
           throw new Error('Erreur lors de la création de la dépense');
         }
 
-        if (expense.category.length === 0) {
+        if (expense.categories.length === 0) {
           // Retourne la dépense créée sans liaison de catégorie
           return from([createdExpense]);
         }
 
         // Création des relations dépense-catégorie pour la table 'expense_categories'
-        const associations = expense.category.map((category) => ({
+        const associations = expense.categories.map((category) => ({
           expense_id: createdExpense.id,
           category_id: category.id,
         }));

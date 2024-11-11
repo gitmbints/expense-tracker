@@ -48,22 +48,20 @@ export class ExpenseService {
           amount: expense.amount,
           date: expense.date,
         })
-        .select()
-        .single(),
+        .select(),
     ).pipe(
       switchMap((response: { data: any; error: any }) => {
-        const createdExpense = response.data;
+        const createdExpense = response.data[0]; // Assumer que `select()` retourne un tableau
 
         if (!createdExpense) {
           throw new Error('Erreur lors de la création de la dépense');
         }
 
         if (expense.categories.length === 0) {
-          // Retourne la dépense créée sans liaison de catégorie
-          return from([createdExpense]);
+          // Retourner un tableau contenant la dépense sans catégories
+          return from([createdExpense]); // Encapsuler dans un tableau
         }
 
-        // Création des relations dépense-catégorie pour la table 'expense_categories'
         const associations = expense.categories.map((category) => ({
           expense_id: createdExpense.id,
           category_id: category.id,
@@ -74,16 +72,17 @@ export class ExpenseService {
             .from('expenses_categories')
             .insert(associations),
         ).pipe(
-          map(() => ({
-            ...createdExpense,
-            categories: associations.map((assoc) => ({
-              id: assoc.category_id,
-            })),
-          })),
+          map(() => [
+            {
+              ...createdExpense,
+              categories: associations.map((assoc) => ({
+                id: assoc.category_id,
+              })),
+            },
+          ]),
           catchError(this.processError),
         );
       }),
-      map(this.processResponse<Expense>),
       catchError(this.processError),
     );
   }
@@ -142,6 +141,7 @@ export class ExpenseService {
   addExpense(expense: Omit<Expense, 'id'>): void {
     this.createExpense$(expense)
       .pipe(
+        tap((data) => console.log('data to transform: ', data)),
         tap((data) => {
           if (data.length > 0) {
             this.expenses.update((expenses) => [...expenses, data[0]]);

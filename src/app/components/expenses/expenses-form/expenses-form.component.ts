@@ -144,7 +144,6 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
     }
 
     const newExpense = this.expenseForm.getRawValue();
-    //const categoriesIds = newExpense.category.map((category) => category.id);
 
     if (this.isAddForm()) {
       this.expenseService.addExpense(newExpense);

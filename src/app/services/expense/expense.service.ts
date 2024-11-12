@@ -72,14 +72,23 @@ export class ExpenseService {
             .from('expenses_categories')
             .insert(associations),
         ).pipe(
-          map(() => [
-            {
-              ...createdExpense,
-              categories: associations.map((assoc) => ({
-                id: assoc.category_id,
-              })),
-            },
-          ]),
+          switchMap(() => {
+            return this.supabaseService.supabase
+              .from('categories')
+              .select('*')
+              .in(
+                'id',
+                associations.map((association) => association.category_id),
+              );
+          }),
+          map((response: { data: any; error: any }) => {
+            const categoriesName =
+              response.data?.map((res: any) => ({
+                name: res.name,
+              })) || [];
+
+            return [{ ...createdExpense, categories: categoriesName }];
+          }),
           catchError(this.processError),
         );
       }),
@@ -141,7 +150,6 @@ export class ExpenseService {
   addExpense(expense: Omit<Expense, 'id'>): void {
     this.createExpense$(expense)
       .pipe(
-        tap((data) => console.log('data to transform: ', data)),
         tap((data) => {
           if (data.length > 0) {
             this.expenses.update((expenses) => [...expenses, data[0]]);

@@ -57,11 +57,6 @@ export class ExpenseService {
           throw new Error('Erreur lors de la création de la dépense');
         }
 
-        if (expense.categories.length === 0) {
-          // Retourner un tableau contenant la dépense sans catégories
-          return from([createdExpense]); // Encapsuler dans un tableau
-        }
-
         const associations = expense.categories.map((category) => ({
           expense_id: createdExpense.id,
           category_id: category.id,
@@ -103,10 +98,59 @@ export class ExpenseService {
     return from(
       this.supabaseService.supabase
         .from('expenses')
-        .update(newExpense)
+        .update({
+          name: newExpense.name,
+          amount: newExpense.amount,
+          date: newExpense.date,
+        })
         .eq('id', id)
         .select(),
-    ).pipe(map(this.processResponse<Expense>), catchError(this.processError));
+    ).pipe(
+      switchMap((response: { data: any; error: any }) => {
+        const updatedExpense = response.data[0]; // Assumer que `select()` retourne un tableau
+
+        if (!updatedExpense) {
+          throw new Error('Erreur lors de la création de la dépense');
+        }
+
+        const associations = newExpense.categories.map((category) => ({
+          expense_id: id,
+          category_id: category.id,
+        }));
+
+        return from(
+          this.supabaseService.supabase
+            .from('expenses_categories')
+            .delete()
+            .eq('expense_id', id),
+        ).pipe(
+          switchMap(() => {
+            return this.supabaseService.supabase
+              .from('expenses_categories')
+              .insert(associations);
+          }),
+          switchMap(() => {
+            return this.supabaseService.supabase
+              .from('categories')
+              .select('*')
+              .in(
+                'id',
+                associations.map((association) => association.category_id),
+              );
+          }),
+          map((response: { data: any; error: any }) => {
+            const categoriesName =
+              response.data?.map((res: any) => ({
+                name: res.name,
+              })) || [];
+
+            return [{ ...updatedExpense, categories: categoriesName }];
+          }),
+          catchError(this.processError),
+        );
+      }),
+      catchError(this.processError),
+    );
   }
 
   private removeExpense$(id: string): Observable<Expense[]> {

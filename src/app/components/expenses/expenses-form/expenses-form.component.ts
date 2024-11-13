@@ -46,6 +46,7 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
 
   ngOnChanges(): void {
     const expense = this.selectedExpense();
+    console.log(expense);
 
     if (expense) {
       this.expenseForm.patchValue({
@@ -101,7 +102,7 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
   }
 
   hasCategory(category: Category): boolean {
-    return this.selectedCategory.includes(category);
+    return this.selectedCategory.some((cat) => cat.id === category.id);
   }
 
   isCategoryLengthReached(category: Category): boolean {
@@ -127,7 +128,7 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
       ]);
     } else {
       this.expenseFormControls.categories.setValue(
-        this.selectedCategory.filter((cat) => cat !== category),
+        this.selectedCategory.filter((cat) => cat.id !== category.id),
       );
     }
   }

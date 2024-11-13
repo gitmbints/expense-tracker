@@ -197,6 +197,7 @@
                         [id]="category.id"
                         type="checkbox"
                         name="category"
+                        [value]="category"
                         [checked]="hasCategory(category)"
                         [disabled]="!isCategoryLengthReached(category)"
                         (change)="selectCategory($event, category)"

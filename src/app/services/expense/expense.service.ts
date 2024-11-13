@@ -35,7 +35,7 @@ export class ExpenseService {
     return from(
       this.supabaseService.supabase
         .from('expenses')
-        .select(`id, name, amount, date, categories (name)`),
+        .select(`id, name, amount, date, categories (id, name)`),
     ).pipe(map(this.processResponse<Expense>), catchError(this.processError));
   }
 

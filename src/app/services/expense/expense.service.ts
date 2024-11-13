@@ -35,7 +35,7 @@ export class ExpenseService {
     return from(
       this.supabaseService.supabase
         .from('expenses')
-        .select(`id, name, amount, date, categories (name)`),
+        .select(`id, name, amount, date, categories (id, name)`),
     ).pipe(map(this.processResponse<Expense>), catchError(this.processError));
   }
 
@@ -57,11 +57,6 @@ export class ExpenseService {
           throw new Error('Erreur lors de la création de la dépense');
         }
 
-        if (expense.categories.length === 0) {
-          // Retourner un tableau contenant la dépense sans catégories
-          return from([createdExpense]); // Encapsuler dans un tableau
-        }
-
         const associations = expense.categories.map((category) => ({
           expense_id: createdExpense.id,
           category_id: category.id,
@@ -72,14 +67,24 @@ export class ExpenseService {
             .from('expenses_categories')
             .insert(associations),
         ).pipe(
-          map(() => [
-            {
-              ...createdExpense,
-              categories: associations.map((assoc) => ({
-                id: assoc.category_id,
-              })),
-            },
-          ]),
+          switchMap(() => {
+            return this.supabaseService.supabase
+              .from('categories')
+              .select('*')
+              .in(
+                'id',
+                associations.map((association) => association.category_id),
+              );
+          }),
+          map((response: { data: any; error: any }) => {
+            const categories =
+              response.data?.map((res: any) => ({
+                id: res.id,
+                name: res.name,
+              })) || [];
+
+            return [{ ...createdExpense, categories: categories }];
+          }),
           catchError(this.processError),
         );
       }),
@@ -94,10 +99,60 @@ export class ExpenseService {
     return from(
       this.supabaseService.supabase
         .from('expenses')
-        .update(newExpense)
+        .update({
+          name: newExpense.name,
+          amount: newExpense.amount,
+          date: newExpense.date,
+        })
         .eq('id', id)
         .select(),
-    ).pipe(map(this.processResponse<Expense>), catchError(this.processError));
+    ).pipe(
+      switchMap((response: { data: any; error: any }) => {
+        const updatedExpense = response.data[0]; // Assumer que `select()` retourne un tableau
+
+        if (!updatedExpense) {
+          throw new Error('Erreur lors de la création de la dépense');
+        }
+
+        const associations = newExpense.categories.map((category) => ({
+          expense_id: id,
+          category_id: category.id,
+        }));
+
+        return from(
+          this.supabaseService.supabase
+            .from('expenses_categories')
+            .delete()
+            .eq('expense_id', id),
+        ).pipe(
+          switchMap(() => {
+            return this.supabaseService.supabase
+              .from('expenses_categories')
+              .insert(associations);
+          }),
+          switchMap(() => {
+            return this.supabaseService.supabase
+              .from('categories')
+              .select('*')
+              .in(
+                'id',
+                associations.map((association) => association.category_id),
+              );
+          }),
+          map((response: { data: any; error: any }) => {
+            const categories =
+              response.data?.map((res: any) => ({
+                id: res.id,
+                name: res.name,
+              })) || [];
+
+            return [{ ...updatedExpense, categories: categories }];
+          }),
+          catchError(this.processError),
+        );
+      }),
+      catchError(this.processError),
+    );
   }
 
   private removeExpense$(id: string): Observable<Expense[]> {
@@ -141,7 +196,6 @@ export class ExpenseService {
   addExpense(expense: Omit<Expense, 'id'>): void {
     this.createExpense$(expense)
       .pipe(
-        tap((data) => console.log('data to transform: ', data)),
         tap((data) => {
           if (data.length > 0) {
             this.expenses.update((expenses) => [...expenses, data[0]]);

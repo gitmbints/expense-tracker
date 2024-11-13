@@ -46,7 +46,6 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
 
   ngOnChanges(): void {
     const expense = this.selectedExpense();
-    console.log(expense);
 
     if (expense) {
       this.expenseForm.patchValue({

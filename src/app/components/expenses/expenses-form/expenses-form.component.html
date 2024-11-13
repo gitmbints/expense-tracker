@@ -188,7 +188,7 @@
                 class="h-48 overflow-y-auto px-3 pb-3 text-sm text-gray-700 dark:text-gray-200"
                 aria-labelledby="dropdownSearchButton"
               >
-                @for (category of expenseCategoryList(); track category) {
+                @for (category of expenseCategoryList(); track category.id) {
                   <li>
                     <div
                       class="flex items-center rounded ps-2 hover:bg-gray-100 dark:hover:bg-gray-600"

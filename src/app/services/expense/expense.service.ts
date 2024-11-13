@@ -77,12 +77,13 @@ export class ExpenseService {
               );
           }),
           map((response: { data: any; error: any }) => {
-            const categoriesName =
+            const categories =
               response.data?.map((res: any) => ({
+                id: res.id,
                 name: res.name,
               })) || [];
 
-            return [{ ...createdExpense, categories: categoriesName }];
+            return [{ ...createdExpense, categories: categories }];
           }),
           catchError(this.processError),
         );
@@ -139,12 +140,13 @@ export class ExpenseService {
               );
           }),
           map((response: { data: any; error: any }) => {
-            const categoriesName =
+            const categories =
               response.data?.map((res: any) => ({
+                id: res.id,
                 name: res.name,
               })) || [];
 
-            return [{ ...updatedExpense, categories: categoriesName }];
+            return [{ ...updatedExpense, categories: categories }];
           }),
           catchError(this.processError),
         );

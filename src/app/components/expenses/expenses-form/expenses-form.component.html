@@ -1,266 +1,214 @@
-<div
-  id="expense-form-modal"
-  tabindex="-1"
-  aria-hidden="true"
-  class="fixed left-0 right-0 top-0 z-50 flex h-dvh max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900/75 md:inset-0"
->
-  <div class="relative max-h-full w-full max-w-md p-4">
-    <!-- Modal content -->
-    <div class="relative rounded-lg bg-white shadow dark:bg-gray-700">
-      <!-- Modal header -->
-      <div
-        class="flex items-center justify-between rounded-t border-b p-4 dark:border-gray-600 md:p-5"
-      >
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-          @if (isAddForm()) {
-            <ng-container> Noter une dépense </ng-container>
-          } @else {
-            <ng-container> Modifier une dépense </ng-container>
-          }
-        </h3>
-        <button
-          type="button"
-          class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-          (click)="closeModal()"
+<app-modal-base (closeModal)="handleCloseModal()">
+  <h3 title class="text-lg font-semibold text-gray-900 dark:text-white">
+    @if (isAddForm()) {
+      <ng-container> Noter une dépense </ng-container>
+    } @else {
+      <ng-container> Modifier une dépense </ng-container>
+    }
+  </h3>
+  <form class="p-4 md:p-5" [formGroup]="expenseForm" (ngSubmit)="onSubmit()">
+    <div class="mb-4 grid grid-cols-2 gap-4">
+      <div class="col-span-2">
+        <label
+          for="name"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          [class.text-pink-600]="isInvalidAndTouched(expenseForm.controls.name)"
+          >Désignation*</label
         >
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          class="is-valid"
+          [class.is-invalid]="isInvalidAndTouched(expenseForm.controls.name)"
+          placeholder="Nom votre dépense"
+        />
+        @if (isInvalidAndTouched(expenseForm.controls.name)) {
+          <small class="text-xs font-medium text-pink-600">
+            @if (expenseForm.controls.name.hasError("required")) {
+              <ng-container>Ce champ est obligatoire.</ng-container>
+            } @else if (expenseForm.controls.name.hasError("minlength")) {
+              <ng-container>
+                La désignation doit avoir au minimum 3 caractères.
+              </ng-container>
+            }
+          </small>
+        }
+      </div>
+      <div class="col-span-2">
+        <label
+          for="amount"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          [class.text-pink-600]="
+            isInvalidAndTouched(expenseForm.controls.amount)
+          "
+          >Montant*</label
+        >
+        <input
+          id="amount"
+          type="number"
+          formControlName="amount"
+          class="is-valid"
+          [class.is-invalid]="isInvalidAndTouched(expenseForm.controls.amount)"
+          placeholder="Montant"
+        />
+        @if (isInvalidAndTouched(expenseForm.controls.name)) {
+          <small class="text-xs font-medium text-pink-600">
+            @if (expenseForm.controls.amount.hasError("required")) {
+              <ng-container>Ce champ est obligatoire.</ng-container>
+            }
+          </small>
+        }
+      </div>
+      <div class="relative col-span-2 self-end">
+        <label
+          for="datepicker-actions"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          [class.text-pink-600]="
+            isInvalidAndTouched(expenseForm.controls.categories)
+          "
+          >Catégorie</label
+        >
+        <button
+          id="dropdownSearchButton"
+          data-dropdown-toggle="dropdownSearch"
+          data-dropdown-placement="bottom"
+          class="is-valid inline-flex w-full items-center justify-between"
+          [class.is-invalid]="
+            isInvalidAndTouched(expenseForm.controls.categories)
+          "
+          type="button"
+        >
+          Catégorie
           <svg
-            class="h-3 w-3"
+            class="ms-3 h-2.5 w-2.5"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
-            viewBox="0 0 14 14"
+            viewBox="0 0 10 6"
           >
             <path
               stroke="currentColor"
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+              d="m1 1 4 4 4-4"
             />
           </svg>
-          <span class="sr-only">Close modal</span>
         </button>
+
+        @if (isInvalidAndTouched(expenseForm.controls.categories)) {
+          <small class="text-xs font-medium text-pink-600">
+            Veuillez selectionner au moins une catégorie.
+          </small>
+        }
+
+        <!-- Dropdown menu -->
+        <div
+          id="dropdownSearch"
+          class="z-10 hidden w-full rounded-lg bg-white shadow dark:bg-gray-700"
+        >
+          <ul
+            class="h-48 overflow-y-auto px-3 pb-3 text-sm text-gray-700 dark:text-gray-200"
+            aria-labelledby="dropdownSearchButton"
+          >
+            @for (category of expenseCategoryList(); track category.id) {
+              <li>
+                <div
+                  class="flex items-center rounded ps-2 hover:bg-gray-100 dark:hover:bg-gray-600"
+                >
+                  <input
+                    [id]="category.id"
+                    type="checkbox"
+                    name="category"
+                    [value]="category"
+                    [checked]="hasCategory(category)"
+                    [disabled]="!isCategoryLengthReached(category)"
+                    (change)="selectCategory($event, category)"
+                    class="checkbox"
+                    [class.is-checkbox-invalid]="
+                      !isCategoryLengthReached(category)
+                    "
+                  />
+                  <label
+                    [for]="category.id"
+                    class="label-valid"
+                    [class.is-label-invalid]="
+                      !isCategoryLengthReached(category)
+                    "
+                    >{{ category.name }}</label
+                  >
+                </div>
+              </li>
+            }
+          </ul>
+        </div>
       </div>
-      <!-- Modal body -->
-      <form
-        class="p-4 md:p-5"
-        [formGroup]="expenseForm"
-        (ngSubmit)="onSubmit()"
-      >
-        <div class="mb-4 grid grid-cols-2 gap-4">
-          <div class="col-span-2">
-            <label
-              for="name"
-              class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-              [class.text-pink-600]="
-                isInvalidAndTouched(expenseForm.controls.name)
-              "
-              >Désignation*</label
-            >
-            <input
-              id="name"
-              type="text"
-              formControlName="name"
-              class="is-valid"
-              [class.is-invalid]="
-                isInvalidAndTouched(expenseForm.controls.name)
-              "
-              placeholder="Nom votre dépense"
-            />
-            @if (isInvalidAndTouched(expenseForm.controls.name)) {
-              <small class="text-xs font-medium text-pink-600">
-                @if (expenseForm.controls.name.hasError("required")) {
-                  <ng-container>Ce champ est obligatoire.</ng-container>
-                } @else if (expenseForm.controls.name.hasError("minlength")) {
-                  <ng-container>
-                    La désignation doit avoir au minimum 3 caractères.
-                  </ng-container>
-                }
-              </small>
-            }
-          </div>
-          <div class="col-span-2">
-            <label
-              for="amount"
-              class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-              [class.text-pink-600]="
-                isInvalidAndTouched(expenseForm.controls.amount)
-              "
-              >Montant*</label
-            >
-            <input
-              id="amount"
-              type="number"
-              formControlName="amount"
-              class="is-valid"
-              [class.is-invalid]="
-                isInvalidAndTouched(expenseForm.controls.amount)
-              "
-              placeholder="Montant"
-            />
-            @if (isInvalidAndTouched(expenseForm.controls.name)) {
-              <small class="text-xs font-medium text-pink-600">
-                @if (expenseForm.controls.amount.hasError("required")) {
-                  <ng-container>Ce champ est obligatoire.</ng-container>
-                }
-              </small>
-            }
-          </div>
-          <div class="relative col-span-2 self-end">
-            <label
-              for="datepicker-actions"
-              class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-              [class.text-pink-600]="
-                isInvalidAndTouched(expenseForm.controls.categories)
-              "
-              >Catégorie</label
-            >
-            <button
-              id="dropdownSearchButton"
-              data-dropdown-toggle="dropdownSearch"
-              data-dropdown-placement="bottom"
-              class="is-valid inline-flex w-full items-center justify-between"
-              [class.is-invalid]="
-                isInvalidAndTouched(expenseForm.controls.categories)
-              "
-              type="button"
-            >
-              Catégorie
-              <svg
-                class="ms-3 h-2.5 w-2.5"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 10 6"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="m1 1 4 4 4-4"
-                />
-              </svg>
-            </button>
-
-            @if (isInvalidAndTouched(expenseForm.controls.categories)) {
-              <small class="text-xs font-medium text-pink-600">
-                Veuillez selectionner au moins une catégorie.
-              </small>
-            }
-
-            <!-- Dropdown menu -->
-            <div
-              id="dropdownSearch"
-              class="z-10 hidden w-full rounded-lg bg-white shadow dark:bg-gray-700"
-            >
-              <ul
-                class="h-48 overflow-y-auto px-3 pb-3 text-sm text-gray-700 dark:text-gray-200"
-                aria-labelledby="dropdownSearchButton"
-              >
-                @for (category of expenseCategoryList(); track category.id) {
-                  <li>
-                    <div
-                      class="flex items-center rounded ps-2 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    >
-                      <input
-                        [id]="category.id"
-                        type="checkbox"
-                        name="category"
-                        [value]="category"
-                        [checked]="hasCategory(category)"
-                        [disabled]="!isCategoryLengthReached(category)"
-                        (change)="selectCategory($event, category)"
-                        class="checkbox"
-                        [class.is-checkbox-invalid]="
-                          !isCategoryLengthReached(category)
-                        "
-                      />
-                      <label
-                        [for]="category.id"
-                        class="label-valid"
-                        [class.is-label-invalid]="
-                          !isCategoryLengthReached(category)
-                        "
-                        >{{ category.name }}</label
-                      >
-                    </div>
-                  </li>
-                }
-              </ul>
-            </div>
-          </div>
-          <div class="col-span-2">
-            <label
-              for="datepicker-actions"
-              class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+      <div class="col-span-2">
+        <label
+          for="datepicker-actions"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          [class.text-pink-600]="isInvalidAndTouched(expenseForm.controls.date)"
+          >Date*</label
+        >
+        <div class="relative">
+          <div
+            class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3"
+          >
+            <svg
+              class="h-4 w-4 text-gray-500 dark:text-gray-400"
               [class.text-pink-600]="
                 isInvalidAndTouched(expenseForm.controls.date)
               "
-              >Date*</label
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20"
             >
-            <div class="relative">
-              <div
-                class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3"
-              >
-                <svg
-                  class="h-4 w-4 text-gray-500 dark:text-gray-400"
-                  [class.text-pink-600]="
-                    isInvalidAndTouched(expenseForm.controls.date)
-                  "
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
-                  />
-                </svg>
-              </div>
-              <input
-                id="datepicker-actions"
-                type="text"
-                formControlName="date"
-                datepicker-buttons
-                datepicker-autoselect-today
-                datepicker
-                class="is-valid"
-                [class.is-invalid]="
-                  isInvalidAndTouched(expenseForm.controls.date)
-                "
-                placeholder="Choisir une date"
+              <path
+                d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
               />
-            </div>
-            @if (isInvalidAndTouched(expenseForm.controls.date)) {
-              <small class="text-xs font-medium text-pink-600">
-                @if (expenseForm.controls.date.hasError("required")) {
-                  <ng-container>Ce champ est obligatoire.</ng-container>
-                }
-              </small>
-            }
+            </svg>
           </div>
+          <input
+            id="datepicker-actions"
+            type="text"
+            formControlName="date"
+            datepicker-buttons
+            datepicker-autoselect-today
+            datepicker
+            class="is-valid"
+            [class.is-invalid]="isInvalidAndTouched(expenseForm.controls.date)"
+            placeholder="Choisir une date"
+          />
         </div>
-
-        <button
-          type="submit"
-          class="mb-2 me-2 mt-6 inline-flex items-center rounded-lg bg-gray-800 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
-        >
-          <svg
-            class="-ms-1 me-1 h-5 w-5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-          Enregister
-        </button>
-      </form>
+        @if (isInvalidAndTouched(expenseForm.controls.date)) {
+          <small class="text-xs font-medium text-pink-600">
+            @if (expenseForm.controls.date.hasError("required")) {
+              <ng-container>Ce champ est obligatoire.</ng-container>
+            }
+          </small>
+        }
+      </div>
     </div>
-  </div>
-</div>
+
+    <button
+      type="submit"
+      class="mb-2 me-2 mt-6 inline-flex items-center rounded-lg bg-gray-800 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+    >
+      <svg
+        class="-ms-1 me-1 h-5 w-5"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+          clip-rule="evenodd"
+        ></path>
+      </svg>
+      Enregister
+    </button>
+  </form>
+</app-modal-base>

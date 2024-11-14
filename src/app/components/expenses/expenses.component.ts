@@ -3,7 +3,7 @@ import { ExpenseService } from '../../services/expense/expense.service';
 import { Expense } from '../../models/expense';
 import { ExpensesFormComponent } from './expenses-form/expenses-form.component';
 import { DatePipe } from '@angular/common';
-import { ModalDeleteComponent } from '../ui/modal-delete/modal-delete.component';
+import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
 
 @Component({
   selector: 'app-expenses',

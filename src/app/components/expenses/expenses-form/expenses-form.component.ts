@@ -17,11 +17,12 @@ import {
 import { Datepicker } from 'flowbite';
 import { Flowbite } from '../../../flowbite/flowbite';
 import { Category, Expense } from '../../../models/expense';
+import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
 
 @Component({
   selector: 'app-expenses-form',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ModalBaseComponent],
   templateUrl: './expenses-form.component.html',
   styleUrl: './expenses-form.component.css',
 })
@@ -152,10 +153,10 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
     }
 
     this.expenseForm.reset();
-    this.closeModal();
+    this.handleCloseModal();
   }
 
-  closeModal(): void {
+  handleCloseModal(): void {
     this.isCloseModal.emit();
   }
 }

@@ -320,13 +320,10 @@
     [selectedExpense]="selectedExpense"
     [isAddForm]="isAddForm()"
     (isCloseModal)="onCloseModal()"
-  ></app-expenses-form>
+  />
 }
 
 <!-- Expense delete modal -->
 @if (isShowModalDelete()) {
-  <app-modal-delete
-    (closeModal)="onCloseModalDelete()"
-    [id]="expenseId"
-  ></app-modal-delete>
+  <app-modal-delete (closeModal)="onCloseModalDelete()" [id]="expenseId" />
 }

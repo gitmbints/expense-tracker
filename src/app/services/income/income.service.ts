@@ -44,6 +44,31 @@ export class IncomeService {
       .subscribe();
   }
 
+  private createIncome$(income: Omit<Income, 'id'>): Observable<Income[]> {
+    return from(
+      this.supabaseService.supabase
+        .from('incomes')
+        .insert({
+          name: income.name,
+          amount: income.amount,
+          date: income.date,
+        })
+        .select(),
+    ).pipe(map(this.processResponse<Income>), catchError(this.processError));
+  }
+
+  addIncome(income: Omit<Income, 'id'>): void {
+    this.createIncome$(income)
+      .pipe(
+        tap((data) => {
+          if (data.length > 0) {
+            this.incomes.update((incomes) => [...incomes, data[0]]);
+          }
+        }),
+      )
+      .subscribe();
+  }
+
   private processResponse<T>(response: { data: any; error: any }): T[] {
     const { data, error } = response;
 

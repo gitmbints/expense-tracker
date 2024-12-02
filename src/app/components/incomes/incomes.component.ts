@@ -3,11 +3,12 @@ import { IncomeService } from '../../services/income/income.service';
 import { Income } from '../../models/income';
 import { DatePipe } from '@angular/common';
 import { IncomesFormComponent } from './incomes-form/incomes-form.component';
+import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
 
 @Component({
   selector: 'app-incomes',
   standalone: true,
-  imports: [DatePipe, IncomesFormComponent],
+  imports: [DatePipe, IncomesFormComponent, ModalDeleteComponent],
   templateUrl: './incomes.component.html',
   styleUrl: './incomes.component.css',
 })
@@ -17,6 +18,9 @@ export class IncomesComponent {
   readonly isLoading: Signal<boolean>;
   readonly isAddForm = signal<boolean>(true);
   readonly isShowModal = signal<boolean>(false);
+  readonly isShowModalDelete = signal<boolean>(false);
+
+  incomeId!: string;
 
   private incomeService: IncomeService = inject(IncomeService);
 
@@ -29,8 +33,17 @@ export class IncomesComponent {
     this.openModal(true, null);
   }
 
+  onDeleteIncome(id: string): void {
+    this.isShowModalDelete.set(true);
+    this.incomeId = id;
+  }
+
   onCloseModal(): void {
     this.isShowModal.set(false);
+  }
+
+  onCloseModalDelete(): void {
+    this.isShowModalDelete.set(false);
   }
 
   private openModal(isAddForm: boolean, income: Income | null): void {

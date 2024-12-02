@@ -69,6 +69,30 @@ export class IncomeService {
       .subscribe();
   }
 
+  private removeIncome$(id: string): Observable<Income[]> {
+    return from(
+      this.supabaseService.supabase
+        .from('incomes')
+        .delete()
+        .eq('id', id)
+        .select(),
+    ).pipe(map(this.processResponse<Income>), catchError(this.processError));
+  }
+
+  deleteIncome(id: string): void {
+    this.removeIncome$(id)
+      .pipe(
+        tap((data) => {
+          if (data.length > 0) {
+            this.incomes.update((incomes) => {
+              return incomes.filter((income) => income.id !== id);
+            });
+          }
+        }),
+      )
+      .subscribe();
+  }
+
   private processResponse<T>(response: { data: any; error: any }): T[] {
     const { data, error } = response;
 

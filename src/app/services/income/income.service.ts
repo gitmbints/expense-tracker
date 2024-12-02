@@ -69,6 +69,41 @@ export class IncomeService {
       .subscribe();
   }
 
+  private editIncome$(
+    id: string,
+    newIncome: Omit<Income, 'id'>,
+  ): Observable<Income[]> {
+    return from(
+      this.supabaseService.supabase
+        .from('incomes')
+        .update({
+          name: newIncome.name,
+          amount: newIncome.amount,
+          date: newIncome.date,
+        })
+        .eq('id', id)
+        .select(),
+    ).pipe(map(this.processResponse<Income>), catchError(this.processError));
+  }
+
+  updateIncome(id: string | undefined, newIncome: Omit<Income, 'id'>): void {
+    if (id) {
+      this.editIncome$(id, newIncome)
+        .pipe(
+          tap((data) => {
+            if (data.length > 0) {
+              this.incomes.update((incomes) => {
+                return incomes.map((income) =>
+                  income.id === id ? { ...data[0], id } : income,
+                );
+              });
+            }
+          }),
+        )
+        .subscribe();
+    }
+  }
+
   private removeIncome$(id: string): Observable<Income[]> {
     return from(
       this.supabaseService.supabase

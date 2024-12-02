@@ -15,12 +15,13 @@ import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
 export class ExpensesComponent {
   readonly title: string = 'Dépenses';
   readonly expenseList: Signal<Expense[]>;
-  selectedExpense: Expense | null = null;
-  expenseId!: string;
   readonly isAddForm = signal<boolean>(true);
   readonly isShowModal = signal<boolean>(false);
   readonly isLoading: Signal<boolean>;
   readonly isShowModalDelete = signal<boolean>(false);
+
+  selectedExpense: Expense | null = null;
+  expenseId!: string;
 
   private expenseService: ExpenseService = inject(ExpenseService);
 

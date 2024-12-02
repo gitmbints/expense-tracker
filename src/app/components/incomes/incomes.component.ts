@@ -21,6 +21,7 @@ export class IncomesComponent {
   readonly isShowModalDelete = signal<boolean>(false);
 
   incomeId!: string;
+  selectedIncome: Income | null = null;
 
   private incomeService: IncomeService = inject(IncomeService);
 
@@ -31,6 +32,10 @@ export class IncomesComponent {
 
   onAddIncome(): void {
     this.openModal(true, null);
+  }
+
+  onEditIncome(income: Income): void {
+    this.openModal(false, income);
   }
 
   onDeleteIncome(id: string): void {
@@ -49,5 +54,6 @@ export class IncomesComponent {
   private openModal(isAddForm: boolean, income: Income | null): void {
     this.isShowModal.set(true);
     this.isAddForm.set(isAddForm);
+    this.selectedIncome = income;
   }
 }

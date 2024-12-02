@@ -1,4 +1,12 @@
-import { Component, inject, input, OnInit, output } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  OnChanges,
+  OnInit,
+  output,
+  SimpleChanges,
+} from '@angular/core';
 import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
 import { IncomeService } from '../../../services/income/income.service';
 import { Flowbite } from '../../../flowbite/flowbite';
@@ -9,6 +17,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { Income } from '../../../models/income';
 
 @Component({
   selector: 'app-incomes-form',
@@ -18,14 +27,27 @@ import {
   styleUrl: './incomes-form.component.css',
 })
 @Flowbite()
-export class IncomesFormComponent implements OnInit {
+export class IncomesFormComponent implements OnInit, OnChanges {
   readonly isAddForm = input.required<boolean>();
   readonly isCloseModal = output();
+  readonly selectedIncome = input<Income | null>(null);
 
   incomeService: IncomeService = inject(IncomeService);
 
   ngOnInit(): void {
     this.initDatePicker();
+  }
+
+  ngOnChanges(): void {
+    const income = this.selectedIncome();
+
+    if (income) {
+      this.incomeForm.patchValue({
+        name: income.name,
+        amount: income.amount,
+        date: income.date,
+      });
+    }
   }
 
   private initDatePicker(): void {
@@ -75,7 +97,7 @@ export class IncomesFormComponent implements OnInit {
     if (this.isAddForm()) {
       this.incomeService.addIncome(newIncome);
     } else {
-      return;
+      this.incomeService.updateIncome(this.selectedIncome()?.id, newIncome);
     }
 
     this.incomeForm.reset();

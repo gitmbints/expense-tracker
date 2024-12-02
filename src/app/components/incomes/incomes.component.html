@@ -246,6 +246,7 @@
                 <td class="px-6 py-4">{{ income.amount }}</td>
                 <td class="flex px-6 py-4">
                   <button
+                    (click)="onEditIncome(income)"
                     class="border-0 bg-transparent font-medium text-blue-600 hover:underline dark:text-blue-500"
                     type="button"
                   >
@@ -306,7 +307,11 @@
 </section>
 
 @if (isShowModal()) {
-  <app-incomes-form [isAddForm]="isAddForm()" (isCloseModal)="onCloseModal()" />
+  <app-incomes-form
+    [selectedIncome]="selectedIncome"
+    [isAddForm]="isAddForm()"
+    (isCloseModal)="onCloseModal()"
+  />
 }
 
 @if (isShowModalDelete()) {

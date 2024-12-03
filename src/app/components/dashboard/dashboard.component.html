@@ -1,1 +1,12 @@
-<h1 class="font-semibold text-3xl text-gray-500">{{ title }}</h1>
+<section>
+  <h1 class="text-3xl font-semibold text-gray-500">{{ title }}</h1>
+  <div class="flex items-center space-x-4">
+    <h2 class="text-3xl font-semibold text-gray-500">
+      Total Revenu: {{ totalIncome() }} <span class="ms-1 text-base">MGA</span>
+    </h2>
+    <h2 class="text-3xl font-semibold text-gray-500">
+      Total Dépense: {{ totalExpense() }}
+      <span class="ms-1 text-base">MGA</span>
+    </h2>
+  </div>
+</section>

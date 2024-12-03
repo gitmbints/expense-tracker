@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject, Signal } from '@angular/core';
+import { IncomeService } from '../../services/income/income.service';
+import { ExpenseService } from '../../services/expense/expense.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -9,4 +11,14 @@ import { Component } from '@angular/core';
 })
 export class DashboardComponent {
   title: string = 'Dashboard';
+  readonly totalIncome: Signal<number>;
+  readonly totalExpense: Signal<number>;
+
+  incomeService: IncomeService = inject(IncomeService);
+  expenseService: ExpenseService = inject(ExpenseService);
+
+  constructor() {
+    this.totalIncome = this.incomeService.totalIncome;
+    this.totalExpense = this.expenseService.totalExpense;
+  }
 }

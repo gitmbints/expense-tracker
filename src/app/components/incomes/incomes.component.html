@@ -1,5 +1,10 @@
 <section>
-  <h1 class="text-3xl font-semibold text-gray-500">{{ title }}</h1>
+  <div class="flex items-center justify-between">
+    <h1 class="text-3xl font-semibold text-gray-500">{{ title }}</h1>
+    <h2 class="text-3xl font-semibold text-gray-500">
+      {{ totalIncome() }} <span class="ms-1 text-base">MGA</span>
+    </h2>
+  </div>
 
   <!-- Modal toggle -->
   <div class="mt-8">

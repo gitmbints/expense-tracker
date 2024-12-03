@@ -19,6 +19,7 @@ export class IncomesComponent {
   readonly isAddForm = signal<boolean>(true);
   readonly isShowModal = signal<boolean>(false);
   readonly isShowModalDelete = signal<boolean>(false);
+  readonly totalIncome: Signal<number>;
 
   incomeId!: string;
   selectedIncome: Income | null = null;
@@ -28,6 +29,7 @@ export class IncomesComponent {
   constructor() {
     this.incomeList = this.incomeService.getIncomeList();
     this.isLoading = this.incomeService.getIsLoading();
+    this.totalIncome = this.incomeService.totalIncome;
   }
 
   onAddIncome(): void {

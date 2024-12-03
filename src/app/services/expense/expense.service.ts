@@ -1,4 +1,4 @@
-import { inject, Injectable, Signal, signal } from '@angular/core';
+import { computed, inject, Injectable, Signal, signal } from '@angular/core';
 import { Category, Expense } from '../../models/expense';
 import { SupabaseService } from '../supabase.service';
 import { catchError, EMPTY, from, map, Observable, switchMap, tap } from 'rxjs';
@@ -22,6 +22,13 @@ export class ExpenseService {
   getCategoryList(): Signal<Category[]> {
     return this.categoryList.asReadonly();
   }
+
+  readonly totalExpense: Signal<number> = computed(() => {
+    return this.expenses().reduce(
+      (total, expense) => total + expense.amount,
+      0,
+    );
+  });
 
   private supabaseService: SupabaseService = inject(SupabaseService);
 

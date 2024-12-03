@@ -19,6 +19,7 @@ export class ExpensesComponent {
   readonly isShowModal = signal<boolean>(false);
   readonly isLoading: Signal<boolean>;
   readonly isShowModalDelete = signal<boolean>(false);
+  readonly totalExpense: Signal<number>;
 
   selectedExpense: Expense | null = null;
   expenseId!: string;
@@ -28,6 +29,7 @@ export class ExpensesComponent {
   constructor() {
     this.expenseList = this.expenseService.getExpenseList();
     this.isLoading = this.expenseService.getIsLoading();
+    this.totalExpense = this.expenseService.totalExpense;
   }
 
   onAddExpense(): void {

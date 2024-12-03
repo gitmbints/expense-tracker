@@ -1,12 +1,29 @@
 <section>
   <h1 class="text-3xl font-semibold text-gray-500">{{ title }}</h1>
-  <div class="flex items-center space-x-4">
-    <h2 class="text-3xl font-semibold text-gray-500">
-      Total Revenu: {{ totalIncome() }} <span class="ms-1 text-base">MGA</span>
-    </h2>
-    <h2 class="text-3xl font-semibold text-gray-500">
-      Total Dépense: {{ totalExpense() }}
-      <span class="ms-1 text-base">MGA</span>
-    </h2>
+  <div class="mt-20 flex items-center justify-around">
+    <div
+      class="flex flex-col space-y-2 rounded border border-solid border-gray-300 p-8"
+    >
+      <h2 class="text-3xl font-semibold text-gray-500">Total Revenu</h2>
+      <p class="text-2xl font-semibold text-gray-800">
+        {{ totalIncome() }} <span class="ms-1 text-base">MGA</span>
+      </p>
+    </div>
+    <div
+      class="flex flex-col space-y-2 rounded border border-solid border-gray-300 p-8"
+    >
+      <h2 class="text-3xl font-semibold text-gray-500">Total Dépense</h2>
+      <p class="text-2xl font-semibold text-gray-800">
+        {{ totalExpense() }} <span class="ms-1 text-base">MGA</span>
+      </p>
+    </div>
+    <div
+      class="border-gray flex flex-col space-y-2 rounded border border-solid p-8"
+    >
+      <h2 class="text-3xl font-semibold text-gray-500">Reste disponible</h2>
+      <p class="text-2xl font-semibold text-gray-800">
+        {{ remaining() }} <span class="ms-1 text-base">MGA</span>
+      </p>
+    </div>
   </div>
 </section>

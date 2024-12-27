@@ -2,19 +2,19 @@ import { Component, computed, inject, Signal, ViewChild } from '@angular/core';
 import { IncomeService } from '../../services/income/income.service';
 import { ExpenseService } from '../../services/expense/expense.service';
 import {
-  ApexAxisChartSeries,
   ApexChart,
-  ApexTitleSubtitle,
-  ApexXAxis,
+  ApexNonAxisChartSeries,
+  ApexResponsive,
   ChartComponent,
   NgApexchartsModule,
 } from 'ng-apexcharts';
+import { Category } from '../../models/expense';
 
 export type ChartOptions = {
-  series: ApexAxisChartSeries;
+  series: ApexNonAxisChartSeries;
   chart: ApexChart;
-  xaxis: ApexXAxis;
-  title: ApexTitleSubtitle;
+  responsive: ApexResponsive[];
+  labels: any;
 };
 @Component({
   selector: 'app-dashboard',
@@ -28,6 +28,7 @@ export class DashboardComponent {
   readonly totalIncome: Signal<number>;
   readonly totalExpense: Signal<number>;
   readonly remaining: Signal<number>;
+  readonly expenseCategoryList: Signal<Category[]>;
 
   @ViewChild('chart', { static: false }) chart!: ChartComponent;
   public chartOptions: ChartOptions;
@@ -41,35 +42,28 @@ export class DashboardComponent {
     this.remaining = computed(() => {
       return this.totalIncome() - this.totalExpense();
     });
+    this.expenseCategoryList = this.expenseService.getCategoryList();
 
     this.chartOptions = {
-      series: [
+      series: [44, 55, 13, 43, 22],
+      chart: {
+        width: 480,
+        type: 'pie',
+      },
+      labels: this.expenseCategoryList().map((category) => category.name),
+      responsive: [
         {
-          name: 'My-series',
-          data: [10, 41, 35, 51, 49, 62, 69, 91, 148],
+          breakpoint: 480,
+          options: {
+            chart: {
+              width: 200,
+            },
+            legend: {
+              position: 'bottom',
+            },
+          },
         },
       ],
-      chart: {
-        width: 350,
-        height: 350,
-        type: 'bar',
-      },
-      title: {
-        text: 'My First Angular Chart',
-      },
-      xaxis: {
-        categories: [
-          'Jan',
-          'Feb',
-          'Mar',
-          'Apr',
-          'May',
-          'Jun',
-          'Jul',
-          'Aug',
-          'Sep',
-        ],
-      },
     };
   }
 }

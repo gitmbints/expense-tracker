@@ -26,11 +26,13 @@
       </p>
     </div>
   </div>
+</section>
 
+<section class="mt-24 grid place-items-center">
   <apx-chart
     [series]="chartOptions.series"
     [chart]="chartOptions.chart"
-    [xaxis]="chartOptions.xaxis"
-    [title]="chartOptions.title"
+    [responsive]="chartOptions.responsive"
+    [labels]="chartOptions.labels"
   ></apx-chart>
 </section>

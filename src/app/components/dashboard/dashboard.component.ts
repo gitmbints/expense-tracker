@@ -16,6 +16,7 @@ export type ChartOptions = {
   responsive: ApexResponsive[];
   labels: any;
 };
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -24,7 +25,7 @@ export type ChartOptions = {
   styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent {
-  title: string = 'Dashboard';
+  readonly title: string = 'Dashboard';
   readonly totalIncome: Signal<number>;
   readonly totalExpense: Signal<number>;
   readonly remaining: Signal<number>;
@@ -39,18 +40,36 @@ export class DashboardComponent {
   constructor() {
     this.totalIncome = this.incomeService.totalIncome;
     this.totalExpense = this.expenseService.totalExpense;
-    this.remaining = computed(() => {
-      return this.totalIncome() - this.totalExpense();
-    });
+    this.remaining = this.calculateRemaining();
     this.expenseCategoryList = this.expenseService.getCategoryList();
+    this.chartOptions = this.initializeChartOptions();
 
-    this.chartOptions = {
-      series: [44, 55, 13, 43, 22],
+    // Update chart series with expenses by category
+    this.updateChartSeries();
+  }
+
+  private calculateRemaining(): Signal<number> {
+    return computed(() => this.totalIncome() - this.totalExpense());
+  }
+
+  private updateChartSeries(): void {
+    const expensesByCategory = this.expenseService.getExpensesByCategory();
+    this.chartOptions.series = expensesByCategory().map(
+      (categoryExpense) => categoryExpense.total,
+    );
+  }
+
+  private initializeChartOptions(): ChartOptions {
+    const category = this.expenseCategoryList().map(
+      (category) => category.name,
+    );
+    return {
+      series: [],
       chart: {
         width: 480,
         type: 'pie',
       },
-      labels: this.expenseCategoryList().map((category) => category.name),
+      labels: category,
       responsive: [
         {
           breakpoint: 480,
@@ -66,4 +85,6 @@ export class DashboardComponent {
       ],
     };
   }
+
+  // TODO: Calculate total amount of expenses per category
 }

@@ -260,4 +260,27 @@ export class ExpenseService {
     this.isLoading.set(false);
     return EMPTY;
   }
+
+  getExpensesByCategory(): Signal<{ category: Category; total: number }[]> {
+    return computed(() => {
+      const expenses = this.expenses();
+      const categoryTotals: { [key: string]: number } = {};
+
+      expenses.forEach((expense) => {
+        expense.categories.forEach((category) => {
+          if (!categoryTotals[category.id]) {
+            categoryTotals[category.id] = 0;
+          }
+          categoryTotals[category.id] += expense.amount;
+        });
+      });
+
+      return Object.entries(categoryTotals).map(([categoryId, total]) => {
+        const category = this.categoryList().find(
+          (cat) => cat.id === categoryId,
+        );
+        return { category: category!, total };
+      });
+    });
+  }
 }

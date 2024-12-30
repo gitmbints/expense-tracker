@@ -54,22 +54,23 @@ export class DashboardComponent {
 
   private updateChartSeries(): void {
     const expensesByCategory = this.expenseService.getExpensesByCategory();
-    this.chartOptions.series = expensesByCategory().map(
+    const data = expensesByCategory();
+    this.chartOptions.series = data.map(
       (categoryExpense) => categoryExpense.total,
+    );
+    this.chartOptions.labels = data.map(
+      (categoryExpense) => categoryExpense.category.name,
     );
   }
 
   private initializeChartOptions(): ChartOptions {
-    const category = this.expenseCategoryList().map(
-      (category) => category.name,
-    );
     return {
       series: [],
       chart: {
         width: 480,
         type: 'pie',
       },
-      labels: category,
+      labels: [],
       responsive: [
         {
           breakpoint: 480,

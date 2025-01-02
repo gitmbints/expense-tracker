@@ -8,6 +8,8 @@ import {
   ChartComponent,
   NgApexchartsModule,
 } from 'ng-apexcharts';
+import { Category } from '../../models/expense';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -36,6 +38,10 @@ export class DashboardComponent {
   incomeService: IncomeService = inject(IncomeService);
   expenseService: ExpenseService = inject(ExpenseService);
 
+  expensesByCategory: Signal<{ category: Category; total: number }[]> =
+    inject(ExpenseService).getExpensesByCategory();
+  expensesByCategory$ = toObservable(this.expensesByCategory);
+
   constructor() {
     this.totalIncome = this.incomeService.totalIncome;
     this.totalExpense = this.expenseService.totalExpense;
@@ -43,22 +49,18 @@ export class DashboardComponent {
     this.chartOptions = this.initializeChartOptions();
     this.isLoading = this.expenseService.getIsLoading();
 
-    this.updateChartSeries();
+    this.expensesByCategory$.subscribe((data) => {
+      this.chartOptions.series = data.map(
+        (categoryExpense) => categoryExpense.total,
+      );
+      this.chartOptions.labels = data.map(
+        (categoryExpense) => categoryExpense.category.name,
+      );
+    });
   }
 
   private calculateRemaining(): Signal<number> {
     return computed(() => this.totalIncome() - this.totalExpense());
-  }
-
-  private updateChartSeries(): void {
-    const expensesByCategory = this.expenseService.getExpensesByCategory();
-    const data = expensesByCategory();
-    this.chartOptions.series = data.map(
-      (categoryExpense) => categoryExpense.total,
-    );
-    this.chartOptions.labels = data.map(
-      (categoryExpense) => categoryExpense.category.name,
-    );
   }
 
   private initializeChartOptions(): ChartOptions {

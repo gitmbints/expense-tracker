@@ -279,6 +279,7 @@ export class ExpenseService {
         const category = this.categoryList().find(
           (cat) => cat.id === categoryId,
         );
+
         return { category: category!, total };
       });
     });

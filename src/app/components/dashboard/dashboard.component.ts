@@ -8,7 +8,6 @@ import {
   ChartComponent,
   NgApexchartsModule,
 } from 'ng-apexcharts';
-import { Category } from '../../models/expense';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -29,7 +28,7 @@ export class DashboardComponent {
   readonly totalIncome: Signal<number>;
   readonly totalExpense: Signal<number>;
   readonly remaining: Signal<number>;
-  readonly expenseCategoryList: Signal<Category[]>;
+  readonly isLoading: Signal<boolean>;
 
   @ViewChild('chart', { static: false }) chart!: ChartComponent;
   public chartOptions: ChartOptions;
@@ -41,10 +40,9 @@ export class DashboardComponent {
     this.totalIncome = this.incomeService.totalIncome;
     this.totalExpense = this.expenseService.totalExpense;
     this.remaining = this.calculateRemaining();
-    this.expenseCategoryList = this.expenseService.getCategoryList();
     this.chartOptions = this.initializeChartOptions();
+    this.isLoading = this.expenseService.getIsLoading();
 
-    // Update chart series with expenses by category
     this.updateChartSeries();
   }
 
@@ -86,6 +84,4 @@ export class DashboardComponent {
       ],
     };
   }
-
-  // TODO: Calculate total amount of expenses per category
 }

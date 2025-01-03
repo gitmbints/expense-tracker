@@ -4,6 +4,7 @@ import { ExpensesComponent } from './components/expenses/expenses.component';
 import { IncomesComponent } from './components/incomes/incomes.component';
 import { SavingsComponent } from './components/savings/savings.component';
 import { InvestComponent } from './components/invest/invest.component';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 
 export const routes: Routes = [
   {
@@ -30,5 +31,9 @@ export const routes: Routes = [
     path: '',
     redirectTo: '/dashboard',
     pathMatch: 'full',
+  },
+  {
+    path: '**',
+    component: PageNotFoundComponent,
   },
 ];

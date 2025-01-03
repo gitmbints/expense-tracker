@@ -4,11 +4,17 @@ import { Expense } from '../../models/expense';
 import { ExpensesFormComponent } from './expenses-form/expenses-form.component';
 import { DatePipe } from '@angular/common';
 import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
+import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
 
 @Component({
   selector: 'app-expenses',
   standalone: true,
-  imports: [ExpensesFormComponent, DatePipe, ModalDeleteComponent],
+  imports: [
+    ExpensesFormComponent,
+    DatePipe,
+    ModalDeleteComponent,
+    LoaderSpinnerComponent,
+  ],
   templateUrl: './expenses.component.html',
   styleUrl: './expenses.component.css',
 })

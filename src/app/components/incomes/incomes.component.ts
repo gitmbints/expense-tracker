@@ -4,11 +4,17 @@ import { Income } from '../../models/income';
 import { DatePipe } from '@angular/common';
 import { IncomesFormComponent } from './incomes-form/incomes-form.component';
 import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
+import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
 
 @Component({
   selector: 'app-incomes',
   standalone: true,
-  imports: [DatePipe, IncomesFormComponent, ModalDeleteComponent],
+  imports: [
+    DatePipe,
+    IncomesFormComponent,
+    ModalDeleteComponent,
+    LoaderSpinnerComponent,
+  ],
   templateUrl: './incomes.component.html',
   styleUrl: './incomes.component.css',
 })

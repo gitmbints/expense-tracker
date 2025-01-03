@@ -264,23 +264,30 @@ export class ExpenseService {
   getExpensesByCategory(): Signal<{ category: Category; total: number }[]> {
     return computed(() => {
       const expenses = this.expenses();
-      const categoryTotals: { [key: string]: number } = {};
-
-      expenses.forEach((expense) => {
-        expense.categories.forEach((category) => {
-          if (!categoryTotals[category.id]) {
-            categoryTotals[category.id] = 0;
-          }
-          categoryTotals[category.id] += expense.amount;
-        });
-      });
+      const categoryTotals = expenses.reduce(
+        (totals, expense) => {
+          expense.categories.forEach((category) => {
+            if (!totals[category.id]) {
+              totals[category.id] = 0;
+            }
+            totals[category.id] += expense.amount;
+          });
+          return totals;
+        },
+        {} as { [key: string]: number },
+      );
 
       return Object.entries(categoryTotals).map(([categoryId, total]) => {
         const category = this.categoryList().find(
           (cat) => cat.id === categoryId,
         );
 
-        return { category: category!, total };
+        if (!category) {
+          console.warn(`Category with ID ${categoryId} not found.`);
+          return { category: { id: categoryId, name: 'Unknown' }, total };
+        }
+
+        return { category, total };
       });
     });
   }

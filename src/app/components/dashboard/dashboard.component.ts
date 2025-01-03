@@ -18,6 +18,7 @@ import {
 } from 'ng-apexcharts';
 import { Category } from '../../models/expense';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -29,7 +30,7 @@ export type ChartOptions = {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [NgApexchartsModule],
+  imports: [NgApexchartsModule, LoaderSpinnerComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -45,11 +46,13 @@ export class DashboardComponent implements OnInit {
 
   incomeService: IncomeService = inject(IncomeService);
   expenseService: ExpenseService = inject(ExpenseService);
-  destroyRef = inject(DestroyRef);
+  // destroyRef = inject(DestroyRef);
 
   expensesByCategory: Signal<{ category: Category; total: number }[]> =
     inject(ExpenseService).getExpensesByCategory();
-  expensesByCategory$ = toObservable(this.expensesByCategory);
+  expensesByCategory$ = toObservable(this.expensesByCategory).pipe(
+    takeUntilDestroyed(),
+  );
 
   constructor() {
     this.totalIncome = this.incomeService.totalIncome;
@@ -60,16 +63,14 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.expensesByCategory$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        this.chartOptions.series = data.map(
-          (categoryExpense) => categoryExpense.total,
-        );
-        this.chartOptions.labels = data.map(
-          (categoryExpense) => categoryExpense.category.name,
-        );
-      });
+    this.expensesByCategory$.subscribe((data) => {
+      this.chartOptions.series = data.map(
+        (categoryExpense) => categoryExpense.total,
+      );
+      this.chartOptions.labels = data.map(
+        (categoryExpense) => categoryExpense.category.name,
+      );
+    });
   }
 
   private calculateRemaining(): Signal<number> {

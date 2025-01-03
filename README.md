@@ -1,27 +1,54 @@
-# ExpenseTracker
+# Expense Tracker
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.1.3.
+![Expense Tracker App](./src/assets/images/ExpenseTracker.png)
 
-## Development server
+Expense Tracker is a web application designed to help users track their income, expenses, and savings. The interface provides a clear and intuitive view to effectively manage finances.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Features
 
-## Code scaffolding
+- **Dashboard** : An overview of your finances.
+- **Expenses** : Manage and track your detailed expenses.
+- **Income** : Add and view your sources of income.
+- **Savings** : Plan and track your savings.
+- **Investments:**: Manage your investments.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Technologies
 
-## Build
+- **Angular** : Main framework.
+- **TypeScript** : Development language.
+- **HTML & CSS** : Structure and styling.
+- **Git** : Control verion.
+- **GitHub Page** : Hosting.
+- **Supabase** : For the backend and the database
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## Installation
 
-## Running unit tests
+1. Clone the repository: :
+   ```bash
+   git clone https://github.com/gitmbints/expense-tracker.git
+   ```
+2. Navigate to the project folder: :
+   ```bash
+   cd expense-tracker
+   ```
+3. Install dependencies :
+   ```bash
+   npm install
+   ```
+4. Start the app :
+   ```bash
+   npm start
+   ```
+5. Open `http://localhost:4200` in your browser.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Contributing
 
-## Running end-to-end tests
+Contributions are welcome :
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+1. Fork the repository.
+2. Create a branch (`git checkout -b feature/my-feature`).
+3. Commit your changes (`git commit -m 'feat: my new feature'`).
+4. Push the branch (`git push origin feature/my-feature`).
+5. Open a Pull Request.
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Thank you for checking out this project!

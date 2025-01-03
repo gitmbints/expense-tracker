@@ -16,10 +16,11 @@ Expense Tracker is a web application designed to help users track their income, 
 
 - **Angular** : Main framework.
 - **TypeScript** : Development language.
-- **HTML & CSS** : Structure and styling.
+- **Flowbite & Tailwind** : Component libraries.
 - **Git** : Control verion.
 - **GitHub Page** : Hosting.
-- **Supabase** : For the backend and the database
+- **Supabase** : Database and API
+- **Apex Chart** : Data visualisation
 
 ## Installation
 

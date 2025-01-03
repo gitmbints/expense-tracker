@@ -1,4 +1,12 @@
-import { Component, computed, inject, Signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  Signal,
+  ViewChild,
+} from '@angular/core';
 import { IncomeService } from '../../services/income/income.service';
 import { ExpenseService } from '../../services/expense/expense.service';
 import {
@@ -9,7 +17,7 @@ import {
   NgApexchartsModule,
 } from 'ng-apexcharts';
 import { Category } from '../../models/expense';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -25,7 +33,7 @@ export type ChartOptions = {
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   readonly title: string = 'Dashboard';
   readonly totalIncome: Signal<number>;
   readonly totalExpense: Signal<number>;
@@ -37,6 +45,7 @@ export class DashboardComponent {
 
   incomeService: IncomeService = inject(IncomeService);
   expenseService: ExpenseService = inject(ExpenseService);
+  destroyRef = inject(DestroyRef);
 
   expensesByCategory: Signal<{ category: Category; total: number }[]> =
     inject(ExpenseService).getExpensesByCategory();
@@ -48,15 +57,19 @@ export class DashboardComponent {
     this.remaining = this.calculateRemaining();
     this.chartOptions = this.initializeChartOptions();
     this.isLoading = this.expenseService.getIsLoading();
+  }
 
-    this.expensesByCategory$.subscribe((data) => {
-      this.chartOptions.series = data.map(
-        (categoryExpense) => categoryExpense.total,
-      );
-      this.chartOptions.labels = data.map(
-        (categoryExpense) => categoryExpense.category.name,
-      );
-    });
+  ngOnInit(): void {
+    this.expensesByCategory$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.chartOptions.series = data.map(
+          (categoryExpense) => categoryExpense.total,
+        );
+        this.chartOptions.labels = data.map(
+          (categoryExpense) => categoryExpense.category.name,
+        );
+      });
   }
 
   private calculateRemaining(): Signal<number> {

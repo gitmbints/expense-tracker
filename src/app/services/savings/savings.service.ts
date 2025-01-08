@@ -1,21 +1,14 @@
 import { inject, Injectable, Signal, signal } from '@angular/core';
 import { Saving } from '../../models/saving';
 import { SupabaseService } from '../supabase.service';
-import {
-  asyncScheduler,
-  catchError,
-  EMPTY,
-  from,
-  map,
-  Observable,
-  tap,
-} from 'rxjs';
+import { catchError, EMPTY, from, map, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SavingsService {
   private readonly savings = signal<Saving[]>([]);
+  private readonly isLoading = signal<boolean>(false);
 
   private supabaseService = inject(SupabaseService);
 
@@ -23,9 +16,8 @@ export class SavingsService {
     this.loadSavings();
   }
 
-  savingList(): Signal<Saving[]> {
-    return this.savings.asReadonly();
-  }
+  savingList = this.savings.asReadonly();
+  isLoadingState = this.isLoading.asReadonly();
 
   private fetchSavings$(): Observable<Saving[]> {
     return from(
@@ -36,11 +28,16 @@ export class SavingsService {
   }
 
   private loadSavings(): void {
-    this.fetchSavings$().pipe(
-      tap((data) => {
-        this.savings.set(data);
-      }),
-    );
+    this.isLoading.set(true);
+
+    this.fetchSavings$()
+      .pipe(
+        tap((data) => {
+          this.savings.set(data);
+          this.isLoading.set(false);
+        }),
+      )
+      .subscribe();
   }
 
   private processResponse<T>(response: { data: any; error: any }): T[] {
@@ -56,7 +53,7 @@ export class SavingsService {
 
   private processError(err: any): Observable<never> {
     console.error('Failed to process the response: ', err.message);
-    // this.isLoading.set(false);
+    this.isLoading.set(false);
     return EMPTY;
   }
 }

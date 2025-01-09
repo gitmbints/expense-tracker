@@ -40,6 +40,30 @@ export class SavingsService {
       .subscribe();
   }
 
+  private createSaving$(saving: Omit<Saving, 'id'>): Observable<Saving[]> {
+    return from(
+      this.supabaseService.supabase
+        .from('savings')
+        .insert({
+          created_at: saving.created_at,
+          amount: saving.amount,
+        })
+        .select(),
+    ).pipe(map(this.processResponse<Saving>), catchError(this.processError));
+  }
+
+  addSaving(saving: Omit<Saving, 'id'>): void {
+    this.createSaving$(saving)
+      .pipe(
+        tap((data) => {
+          if (data.length > 0) {
+            this.savings.update((savings) => [...savings, data[0]]);
+          }
+        }),
+      )
+      .subscribe();
+  }
+
   private processResponse<T>(response: { data: any; error: any }): T[] {
     const { data, error } = response;
 

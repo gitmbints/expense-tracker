@@ -5,7 +5,6 @@ import {
   OnChanges,
   OnInit,
   output,
-  SimpleChanges,
 } from '@angular/core';
 import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
 import { IncomeService } from '../../../services/income/income.service';

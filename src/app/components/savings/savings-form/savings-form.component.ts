@@ -1,4 +1,11 @@
-import { Component, inject, input, output } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  OnChanges,
+  OnInit,
+  output,
+} from '@angular/core';
 import { Saving } from '../../../models/saving';
 import { SavingsService } from '../../../services/savings/savings.service';
 import { Flowbite } from '../../../flowbite/flowbite';
@@ -18,7 +25,7 @@ import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
   templateUrl: './savings-form.component.html',
 })
 @Flowbite()
-export class SavingsFormComponent {
+export class SavingsFormComponent implements OnInit, OnChanges {
   readonly isAddForm = input.required<boolean>();
   readonly closeModalForm = output();
   readonly selectedSaving = input<Saving | null>(null);
@@ -27,6 +34,17 @@ export class SavingsFormComponent {
 
   ngOnInit(): void {
     this.initDatePicker();
+  }
+
+  ngOnChanges(): void {
+    const income = this.selectedSaving();
+
+    if (income) {
+      this.savingForm.patchValue({
+        created_at: income.created_at,
+        amount: income.amount,
+      });
+    }
   }
 
   private initDatePicker(): void {
@@ -72,8 +90,7 @@ export class SavingsFormComponent {
     if (this.isAddForm()) {
       this.savingsService.addSaving(newSaving);
     } else {
-      // this.savingsService.updateSaving(this.selectedSaving()?.id, newSaving);
-      console.info('Edit saving form');
+      this.savingsService.updateSaving(this.selectedSaving()?.id, newSaving);
     }
 
     this.savingForm.reset();

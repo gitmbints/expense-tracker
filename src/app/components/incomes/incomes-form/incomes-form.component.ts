@@ -31,7 +31,7 @@ export class IncomesFormComponent implements OnInit, OnChanges {
   readonly isCloseModal = output();
   readonly selectedIncome = input<Income | null>(null);
 
-  incomeService: IncomeService = inject(IncomeService);
+  incomeService = inject(IncomeService);
 
   ngOnInit(): void {
     this.initDatePicker();

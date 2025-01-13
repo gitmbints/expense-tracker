@@ -52,6 +52,22 @@ export class SavingsService {
     ).pipe(map(this.processResponse<Saving>), catchError(this.processError));
   }
 
+  private editSaving$(
+    id: string,
+    newSaving: Omit<Saving, 'id'>,
+  ): Observable<Saving[]> {
+    return from(
+      this.supabaseService.supabase
+        .from('savings')
+        .update({
+          created_at: newSaving.created_at,
+          amount: newSaving.amount,
+        })
+        .eq('id', id)
+        .select(),
+    ).pipe(map(this.processResponse<Saving>), catchError(this.processError));
+  }
+
   addSaving(saving: Omit<Saving, 'id'>): void {
     this.createSaving$(saving)
       .pipe(
@@ -62,6 +78,24 @@ export class SavingsService {
         }),
       )
       .subscribe();
+  }
+
+  updateSaving(id: string | undefined, newSaving: Omit<Saving, 'id'>): void {
+    if (id) {
+      this.editSaving$(id, newSaving)
+        .pipe(
+          tap((data) => {
+            if (data.length > 0) {
+              this.savings.update((savings) => {
+                return savings.map((saving) =>
+                  saving.id === id ? { ...data[0], id } : saving,
+                );
+              });
+            }
+          }),
+        )
+        .subscribe();
+    }
   }
 
   private processResponse<T>(response: { data: any; error: any }): T[] {

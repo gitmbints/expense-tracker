@@ -1,4 +1,4 @@
-import { inject, Injectable, Signal, signal } from '@angular/core';
+import { computed, inject, Injectable, Signal, signal } from '@angular/core';
 import { Saving } from '../../models/saving';
 import { SupabaseService } from '../supabase.service';
 import { catchError, EMPTY, from, map, Observable, tap } from 'rxjs';
@@ -18,6 +18,10 @@ export class SavingsService {
 
   savingList = this.savings.asReadonly();
   isLoadingState = this.isLoading.asReadonly();
+
+  readonly totalIncome: Signal<number> = computed(() => {
+    return this.savings().reduce((total, saving) => total + saving.amount, 0);
+  });
 
   private fetchSavings$(): Observable<Saving[]> {
     return from(

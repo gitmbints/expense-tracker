@@ -28,6 +28,7 @@ export class SavingsComponent implements OnInit {
   selectedSaving: Saving | null = null;
   isShowModalDelete = signal<boolean>(false);
   savingId!: string;
+  totalSavings!: Signal<number>;
 
   private savingsService = inject(SavingsService);
 
@@ -36,6 +37,7 @@ export class SavingsComponent implements OnInit {
   ngOnInit(): void {
     this.savingList = this.savingsService.savingList;
     this.isLoading = this.savingsService.isLoadingState;
+    this.totalSavings = this.savingsService.totalIncome;
   }
 
   onAddSaving(): void {

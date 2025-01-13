@@ -24,7 +24,6 @@ import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
   standalone: true,
   imports: [ReactiveFormsModule, ModalBaseComponent],
   templateUrl: './expenses-form.component.html',
-  styleUrl: './expenses-form.component.css',
 })
 @Flowbite()
 export class ExpensesFormComponent implements OnInit, OnChanges {

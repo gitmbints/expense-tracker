@@ -7,7 +7,6 @@ import { ModalDeleteBaseComponent } from '../../ui/modal-delete-base/modal-delet
   standalone: true,
   imports: [ModalDeleteBaseComponent],
   templateUrl: './modal-delete.component.html',
-  styleUrl: './modal-delete.component.css',
 })
 export class ModalDeleteComponent {
   readonly closeModal = output<void>();

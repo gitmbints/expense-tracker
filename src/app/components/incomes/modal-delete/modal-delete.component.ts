@@ -7,7 +7,6 @@ import { IncomeService } from '../../../services/income/income.service';
   standalone: true,
   imports: [ModalDeleteBaseComponent],
   templateUrl: './modal-delete.component.html',
-  styleUrl: './modal-delete.component.css',
 })
 export class ModalDeleteComponent {
   readonly closeModal = output<void>();

@@ -25,6 +25,5 @@ import { Component } from '@angular/core';
       <span class="sr-only">Loading...</span>
     </div>
   `,
-  styleUrl: './loader-spinner.component.css',
 })
 export class LoaderSpinnerComponent {}

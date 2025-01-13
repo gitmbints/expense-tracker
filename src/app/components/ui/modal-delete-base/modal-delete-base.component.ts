@@ -5,7 +5,6 @@ import { Component, output } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './modal-delete-base.component.html',
-  styleUrl: './modal-delete-base.component.css',
 })
 export class ModalDeleteBaseComponent {
   readonly closeModal = output<void>();

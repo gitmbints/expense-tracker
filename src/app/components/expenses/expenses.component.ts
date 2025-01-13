@@ -16,7 +16,6 @@ import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.comp
     LoaderSpinnerComponent,
   ],
   templateUrl: './expenses.component.html',
-  styleUrl: './expenses.component.css',
 })
 export class ExpensesComponent {
   readonly title: string = 'Dépenses';

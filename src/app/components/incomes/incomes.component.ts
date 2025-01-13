@@ -16,7 +16,6 @@ import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.comp
     LoaderSpinnerComponent,
   ],
   templateUrl: './incomes.component.html',
-  styleUrl: './incomes.component.css',
 })
 export class IncomesComponent {
   readonly title: string = 'Revenus';

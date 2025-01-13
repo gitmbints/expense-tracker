@@ -23,7 +23,6 @@ import { Income } from '../../../models/income';
   standalone: true,
   imports: [ReactiveFormsModule, ModalBaseComponent],
   templateUrl: './incomes-form.component.html',
-  styleUrl: './incomes-form.component.css',
 })
 @Flowbite()
 export class IncomesFormComponent implements OnInit, OnChanges {

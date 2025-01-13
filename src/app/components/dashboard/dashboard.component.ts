@@ -1,7 +1,6 @@
 import {
   Component,
   computed,
-  DestroyRef,
   inject,
   OnInit,
   Signal,
@@ -32,7 +31,6 @@ export type ChartOptions = {
   standalone: true,
   imports: [NgApexchartsModule, LoaderSpinnerComponent],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
   readonly title: string = 'Dashboard';
@@ -46,7 +44,6 @@ export class DashboardComponent implements OnInit {
 
   incomeService: IncomeService = inject(IncomeService);
   expenseService: ExpenseService = inject(ExpenseService);
-  // destroyRef = inject(DestroyRef);
 
   expensesByCategory: Signal<{ category: Category; total: number }[]> =
     inject(ExpenseService).getExpensesByCategory();

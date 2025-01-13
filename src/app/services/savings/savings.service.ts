@@ -68,6 +68,16 @@ export class SavingsService {
     ).pipe(map(this.processResponse<Saving>), catchError(this.processError));
   }
 
+  private removeSaving$(id: string): Observable<Saving[]> {
+    return from(
+      this.supabaseService.supabase
+        .from('savings')
+        .delete()
+        .eq('id', id)
+        .select(),
+    ).pipe(map(this.processResponse<Saving>), catchError(this.processError));
+  }
+
   addSaving(saving: Omit<Saving, 'id'>): void {
     this.createSaving$(saving)
       .pipe(
@@ -96,6 +106,20 @@ export class SavingsService {
         )
         .subscribe();
     }
+  }
+
+  deleteSaving(id: string): void {
+    this.removeSaving$(id)
+      .pipe(
+        tap((data) => {
+          if (data.length > 0) {
+            this.savings.update((savings) => {
+              return savings.filter((saving) => saving.id !== id);
+            });
+          }
+        }),
+      )
+      .subscribe();
   }
 
   private processResponse<T>(response: { data: any; error: any }): T[] {

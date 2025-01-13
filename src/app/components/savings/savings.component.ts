@@ -4,11 +4,17 @@ import { Saving } from '../../models/saving';
 import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
 import { DatePipe } from '@angular/common';
 import { SavingsFormComponent } from './savings-form/savings-form.component';
+import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
 
 @Component({
   selector: 'app-savings',
   standalone: true,
-  imports: [LoaderSpinnerComponent, DatePipe, SavingsFormComponent],
+  imports: [
+    LoaderSpinnerComponent,
+    DatePipe,
+    SavingsFormComponent,
+    ModalDeleteComponent,
+  ],
   templateUrl: './savings.component.html',
 })
 export class SavingsComponent implements OnInit {
@@ -20,8 +26,10 @@ export class SavingsComponent implements OnInit {
   isAddForm = signal<boolean>(true);
   isShowModalForm = signal<boolean>(false);
   selectedSaving: Saving | null = null;
+  isShowModalDelete = signal<boolean>(false);
+  savingId!: string;
 
-  savingsService = inject(SavingsService);
+  private savingsService = inject(SavingsService);
 
   constructor() {}
 
@@ -38,8 +46,17 @@ export class SavingsComponent implements OnInit {
     this.openModalForm(false, saving);
   }
 
+  onDeleteSaving(id: string): void {
+    this.isShowModalDelete.set(true);
+    this.savingId = id;
+  }
+
   onCloseModalForm(): void {
     this.isShowModalForm.set(false);
+  }
+
+  onCloseModalDelete(): void {
+    this.isShowModalDelete.set(false);
   }
 
   private openModalForm(isAddForm: boolean, saving: Saving | null): void {

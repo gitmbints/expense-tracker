@@ -253,6 +253,7 @@
                     </svg>
                   </button>
                   <button
+                    (click)="onDeleteSaving(saving.id)"
                     class="ms-2 border-0 bg-transparent font-medium text-blue-600 hover:underline dark:text-blue-500"
                   >
                     <svg
@@ -297,6 +298,6 @@
   />
 }
 
-<!-- @if (isShowModalDelete()) {
-  <app-modal-delete (closeModal)="onCloseModalDelete()" [id]="incomeId" />
-} -->
+@if (isShowModalDelete()) {
+  <app-modal-delete (closeModal)="onCloseModalDelete()" [id]="savingId" />
+}

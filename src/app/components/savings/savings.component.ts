@@ -32,8 +32,6 @@ export class SavingsComponent implements OnInit {
 
   private savingsService = inject(SavingsService);
 
-  constructor() {}
-
   ngOnInit(): void {
     this.savingList = this.savingsService.savingList;
     this.isLoading = this.savingsService.isLoadingState;

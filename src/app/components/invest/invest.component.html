@@ -9,6 +9,7 @@
   <!-- Modal toggle -->
   <div class="mt-8">
     <button
+      (click)="onAddInvest()"
       class="mb-2 me-2 rounded-lg bg-gray-800 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
       type="button"
     >
@@ -232,6 +233,7 @@
                 <td class="px-6 py-4">{{ invest.amount }}</td>
                 <td class="flex px-6 py-4">
                   <button
+                    (click)="onEditInvest(invest)"
                     class="border-0 bg-transparent font-medium text-blue-600 hover:underline dark:text-blue-500"
                     type="button"
                   >
@@ -254,6 +256,7 @@
                     </svg>
                   </button>
                   <button
+                    (click)="onDeleteInvest(invest.id)"
                     class="ms-2 border-0 bg-transparent font-medium text-blue-600 hover:underline dark:text-blue-500"
                   >
                     <svg
@@ -290,14 +293,14 @@
   </div>
 </section>
 
-<!-- @if (isShowModal()) {
-  <app-incomes-form
-    [selectedIncome]="selectedIncome"
+@if (isShowModalForm()) {
+  <app-invest-form
+    [selectedInvest]="selectedInvest"
     [isAddForm]="isAddForm()"
-    (isCloseModal)="onCloseModal()"
+    (isCloseModal)="onCloseModalForm()"
   />
 }
 
 @if (isShowModalDelete()) {
-  <app-modal-delete (closeModal)="onCloseModalDelete()" [id]="incomeId" />
-} -->
+  <app-modal-delete (closeModal)="onCloseModalDelete()" [id]="investId" />
+}

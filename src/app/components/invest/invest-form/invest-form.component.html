@@ -1,0 +1,131 @@
+<app-modal-base (closeModal)="handleCloseModal()">
+  <h3 title class="text-lg font-semibold text-gray-900 dark:text-white">
+    @if (isAddForm()) {
+      <ng-container> Ajouter un investissement </ng-container>
+    } @else {
+      <ng-container> Modifier un investissement </ng-container>
+    }
+  </h3>
+  <form class="p-4 md:p-5" [formGroup]="investForm" (ngSubmit)="onSubmit()">
+    <div class="mb-4 grid grid-cols-2 gap-4">
+      <div class="col-span-2">
+        <label
+          for="name"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          [class.text-pink-600]="isInvalidAndTouched(investForm.controls.name)"
+          >Désignation*</label
+        >
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          class="is-valid"
+          [class.is-invalid]="isInvalidAndTouched(investForm.controls.name)"
+          placeholder="Nom votre dépense"
+        />
+        @if (isInvalidAndTouched(investForm.controls.name)) {
+          <small class="text-xs font-medium text-pink-600">
+            @if (investForm.controls.name.hasError("required")) {
+              <ng-container>Ce champ est obligatoire.</ng-container>
+            } @else if (investForm.controls.name.hasError("minlength")) {
+              <ng-container>
+                La désignation doit avoir au minimum 3 caractères.
+              </ng-container>
+            }
+          </small>
+        }
+      </div>
+      <div class="col-span-2">
+        <label
+          for="amount"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          [class.text-pink-600]="
+            isInvalidAndTouched(investForm.controls.amount)
+          "
+          >Montant*</label
+        >
+        <input
+          id="amount"
+          type="number"
+          formControlName="amount"
+          class="is-valid"
+          [class.is-invalid]="isInvalidAndTouched(investForm.controls.amount)"
+          placeholder="Montant"
+        />
+        @if (isInvalidAndTouched(investForm.controls.name)) {
+          <small class="text-xs font-medium text-pink-600">
+            @if (investForm.controls.amount.hasError("required")) {
+              <ng-container>Ce champ est obligatoire.</ng-container>
+            }
+          </small>
+        }
+      </div>
+
+      <div class="col-span-2">
+        <label
+          for="datepicker-actions"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          [class.text-pink-600]="isInvalidAndTouched(investForm.controls.date)"
+          >Date*</label
+        >
+        <div class="relative">
+          <div
+            class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3"
+          >
+            <svg
+              class="h-4 w-4 text-gray-500 dark:text-gray-400"
+              [class.text-pink-600]="
+                isInvalidAndTouched(investForm.controls.date)
+              "
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
+              />
+            </svg>
+          </div>
+          <input
+            id="datepicker-actions"
+            type="text"
+            formControlName="date"
+            datepicker-buttons
+            datepicker-autoselect-today
+            datepicker
+            class="is-valid"
+            [class.is-invalid]="isInvalidAndTouched(investForm.controls.date)"
+            placeholder="Choisir une date"
+          />
+        </div>
+        @if (isInvalidAndTouched(investForm.controls.date)) {
+          <small class="text-xs font-medium text-pink-600">
+            @if (investForm.controls.date.hasError("required")) {
+              <ng-container>Ce champ est obligatoire.</ng-container>
+            }
+          </small>
+        }
+      </div>
+    </div>
+
+    <button
+      type="submit"
+      class="mb-2 me-2 mt-6 inline-flex items-center rounded-lg bg-gray-800 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+    >
+      <svg
+        class="-ms-1 me-1 h-5 w-5"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+          clip-rule="evenodd"
+        ></path>
+      </svg>
+      Enregister
+    </button>
+  </form>
+</app-modal-base>

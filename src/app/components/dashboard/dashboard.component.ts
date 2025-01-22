@@ -18,6 +18,8 @@ import {
 import { Category } from '../../models/expense';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
+import { InvestmentsService } from '../../services/investments/investments.service';
+import { SavingsService } from '../../services/savings/savings.service';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -38,12 +40,16 @@ export class DashboardComponent implements OnInit {
   readonly totalExpense: Signal<number>;
   readonly remaining: Signal<number>;
   readonly isLoading: Signal<boolean>;
+  readonly totalInvestments: Signal<number>;
+  readonly totalSavings: Signal<number>;
 
   @ViewChild('chart', { static: false }) chart!: ChartComponent;
   public chartOptions: ChartOptions;
 
-  incomeService: IncomeService = inject(IncomeService);
-  expenseService: ExpenseService = inject(ExpenseService);
+  incomeService = inject(IncomeService);
+  expenseService = inject(ExpenseService);
+  investmentsService = inject(InvestmentsService);
+  savingsService = inject(SavingsService);
 
   expensesByCategory: Signal<{ category: Category; total: number }[]> =
     inject(ExpenseService).getExpensesByCategory();
@@ -54,6 +60,8 @@ export class DashboardComponent implements OnInit {
   constructor() {
     this.totalIncome = this.incomeService.totalIncome;
     this.totalExpense = this.expenseService.totalExpense;
+    this.totalInvestments = this.investmentsService.totalInvestments;
+    this.totalSavings = this.savingsService.totalSaving;
     this.remaining = this.calculateRemaining();
     this.chartOptions = this.initializeChartOptions();
     this.isLoading = this.expenseService.getIsLoading();

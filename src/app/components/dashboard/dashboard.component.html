@@ -1,24 +1,40 @@
 <section>
   <h1 class="text-3xl font-semibold text-gray-500">{{ title }}</h1>
-  <div class="mt-20 flex items-center justify-around">
+  <div class="mt-20 flex flex-wrap items-center justify-around">
     <div
-      class="flex flex-col space-y-2 rounded border border-solid border-gray-300 p-8"
+      class="flex flex-col space-y-2 rounded border border-solid border-gray-300 px-12 py-8"
     >
-      <h2 class="text-3xl font-semibold text-gray-500">Total Revenu</h2>
+      <h2 class="text-3xl font-semibold text-gray-500">Revenu</h2>
       <p class="text-2xl font-semibold text-gray-800">
         {{ totalIncome() }} <span class="ms-1 text-base">MGA</span>
       </p>
     </div>
     <div
-      class="flex flex-col space-y-2 rounded border border-solid border-gray-300 p-8"
+      class="flex flex-col space-y-2 rounded border border-solid border-gray-300 px-12 py-8"
     >
-      <h2 class="text-3xl font-semibold text-gray-500">Total Dépense</h2>
+      <h2 class="text-3xl font-semibold text-gray-500">Dépense</h2>
       <p class="text-2xl font-semibold text-gray-800">
         {{ totalExpense() }} <span class="ms-1 text-base">MGA</span>
       </p>
     </div>
     <div
-      class="border-gray flex flex-col space-y-2 rounded border border-solid p-8"
+      class="flex flex-col space-y-2 rounded border border-solid border-gray-300 px-12 py-8"
+    >
+      <h2 class="text-3xl font-semibold text-gray-500">Epargne</h2>
+      <p class="text-2xl font-semibold text-gray-800">
+        {{ totalSavings() }} <span class="ms-1 text-base">MGA</span>
+      </p>
+    </div>
+    <div
+      class="flex flex-col space-y-2 rounded border border-solid border-gray-300 px-12 py-8"
+    >
+      <h2 class="text-3xl font-semibold text-gray-500">Investissement</h2>
+      <p class="text-2xl font-semibold text-gray-800">
+        {{ totalInvestments() }} <span class="ms-1 text-base">MGA</span>
+      </p>
+    </div>
+    <div
+      class="border-gray flex flex-col space-y-2 rounded border border-solid px-12 py-8"
     >
       <h2 class="text-3xl font-semibold text-gray-500">Reste disponible</h2>
       <p class="text-2xl font-semibold text-gray-800">
@@ -28,7 +44,9 @@
   </div>
 </section>
 
-<section class="mt-24 grid place-items-center rounded border border-solid p-8">
+<section
+  class="mt-24 grid place-items-center rounded border border-solid px-12 py-8"
+>
   <h2 class="mb-4 text-gray-500">Statistique des dépenses par catégorie</h2>
   @if (isLoading()) {
     <app-loader-spinner />

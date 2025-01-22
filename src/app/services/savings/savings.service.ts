@@ -19,7 +19,7 @@ export class SavingsService {
   savingList = this.savings.asReadonly();
   isLoadingState = this.isLoading.asReadonly();
 
-  readonly totalIncome: Signal<number> = computed(() => {
+  readonly totalSaving: Signal<number> = computed(() => {
     return this.savings().reduce((total, saving) => total + saving.amount, 0);
   });
 

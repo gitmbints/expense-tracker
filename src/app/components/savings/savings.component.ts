@@ -35,7 +35,7 @@ export class SavingsComponent implements OnInit {
   ngOnInit(): void {
     this.savingList = this.savingsService.savingList;
     this.isLoading = this.savingsService.isLoadingState;
-    this.totalSavings = this.savingsService.totalIncome;
+    this.totalSavings = this.savingsService.totalSaving;
   }
 
   onAddSaving(): void {

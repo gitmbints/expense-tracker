@@ -1,10 +1,18 @@
-import { Component, inject, signal, Signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+  Signal,
+} from '@angular/core';
 import { ExpenseService } from '../../services/expense/expense.service';
 import { Expense } from '../../models/expense';
 import { ExpensesFormComponent } from './expenses-form/expenses-form.component';
 import { DatePipe } from '@angular/common';
 import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
 import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-expenses',
@@ -14,6 +22,7 @@ import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.comp
     DatePipe,
     ModalDeleteComponent,
     LoaderSpinnerComponent,
+    ReactiveFormsModule,
   ],
   templateUrl: './expenses.component.html',
 })
@@ -29,6 +38,8 @@ export class ExpensesComponent {
   selectedExpense: Expense | null = null;
   expenseId!: string;
 
+  search = new FormControl('');
+
   private expenseService: ExpenseService = inject(ExpenseService);
 
   constructor() {
@@ -36,6 +47,18 @@ export class ExpensesComponent {
     this.isLoading = this.expenseService.getIsLoading();
     this.totalExpense = this.expenseService.totalExpense;
   }
+
+  readonly filteredExpenseList: Signal<Expense[]> = computed(() => {
+    const searchValue = this.search.value?.toLowerCase() ?? '';
+
+    if (!searchValue) {
+      return this.expenseList();
+    }
+
+    return this.expenseList().filter((expense) => {
+      expense.name.toLowerCase().includes(searchValue);
+    });
+  });
 
   onAddExpense(): void {
     this.openModal(true, null);

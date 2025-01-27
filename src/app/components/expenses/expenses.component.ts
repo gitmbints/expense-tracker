@@ -42,14 +42,13 @@ export class ExpensesComponent {
   search = new FormControl('', { nonNullable: true });
 
   private expenseService: ExpenseService = inject(ExpenseService);
+  private searchValue = toSignal(this.search.valueChanges);
 
   constructor() {
     this.expenseList = this.expenseService.getExpenseList();
     this.isLoading = this.expenseService.getIsLoading();
     this.totalExpense = this.expenseService.totalExpense;
   }
-
-  searchValue = toSignal(this.search.valueChanges);
 
   readonly filteredExpenseList: Signal<Expense[]> = computed(() => {
     if (this.searchValue()) {

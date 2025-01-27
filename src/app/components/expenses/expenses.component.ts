@@ -13,6 +13,7 @@ import { DatePipe } from '@angular/common';
 import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
 import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-expenses',
@@ -38,7 +39,7 @@ export class ExpensesComponent {
   selectedExpense: Expense | null = null;
   expenseId!: string;
 
-  search = new FormControl('');
+  search = new FormControl('', { nonNullable: true });
 
   private expenseService: ExpenseService = inject(ExpenseService);
 
@@ -48,16 +49,20 @@ export class ExpensesComponent {
     this.totalExpense = this.expenseService.totalExpense;
   }
 
-  readonly filteredExpenseList: Signal<Expense[]> = computed(() => {
-    const searchValue = this.search.value?.toLowerCase() ?? '';
+  searchValue = toSignal(this.search.valueChanges);
 
-    if (!searchValue) {
-      return this.expenseList();
+  readonly filteredExpenseList: Signal<Expense[]> = computed(() => {
+    if (this.searchValue()) {
+      const filtered = this.expenseList().filter((expense) => {
+        return expense.name
+          .toLowerCase()
+          .includes(this.searchValue()?.toLowerCase() || '');
+      });
+
+      return filtered;
     }
 
-    return this.expenseList().filter((expense) => {
-      expense.name.toLowerCase().includes(searchValue);
-    });
+    return this.expenseList();
   });
 
   onAddExpense(): void {

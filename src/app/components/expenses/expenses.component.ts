@@ -1,11 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
-  Signal,
-} from '@angular/core';
+import { Component, computed, inject, signal, Signal } from '@angular/core';
 import { ExpenseService } from '../../services/expense/expense.service';
 import { Expense } from '../../models/expense';
 import { ExpensesFormComponent } from './expenses-form/expenses-form.component';
@@ -28,6 +21,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
   templateUrl: './expenses.component.html',
 })
 export class ExpensesComponent {
+  private expenseService: ExpenseService = inject(ExpenseService);
+
   readonly title: string = 'Dépenses';
   readonly expenseList: Signal<Expense[]>;
   readonly isAddForm = signal<boolean>(true);
@@ -41,7 +36,6 @@ export class ExpensesComponent {
 
   search = new FormControl('', { nonNullable: true });
 
-  private expenseService: ExpenseService = inject(ExpenseService);
   private searchValue = toSignal(this.search.valueChanges);
 
   constructor() {

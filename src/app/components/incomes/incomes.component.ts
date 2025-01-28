@@ -1,10 +1,12 @@
-import { Component, inject, signal, Signal } from '@angular/core';
+import { Component, computed, inject, signal, Signal } from '@angular/core';
 import { IncomeService } from '../../services/income/income.service';
 import { Income } from '../../models/income';
 import { DatePipe } from '@angular/common';
 import { IncomesFormComponent } from './incomes-form/incomes-form.component';
 import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
 import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-incomes',
@@ -14,10 +16,13 @@ import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.comp
     IncomesFormComponent,
     ModalDeleteComponent,
     LoaderSpinnerComponent,
+    ReactiveFormsModule,
   ],
   templateUrl: './incomes.component.html',
 })
 export class IncomesComponent {
+  private incomeService: IncomeService = inject(IncomeService);
+
   readonly title: string = 'Revenus';
   readonly incomeList: Signal<Income[]>;
   readonly isLoading: Signal<boolean>;
@@ -29,13 +34,29 @@ export class IncomesComponent {
   incomeId!: string;
   selectedIncome: Income | null = null;
 
-  private incomeService: IncomeService = inject(IncomeService);
+  search = new FormControl('', { nonNullable: true });
+
+  private searchValue = toSignal(this.search.valueChanges);
 
   constructor() {
     this.incomeList = this.incomeService.getIncomeList();
     this.isLoading = this.incomeService.getIsLoading();
     this.totalIncome = this.incomeService.totalIncome;
   }
+
+  readonly filteredIncomeList: Signal<Income[]> = computed(() => {
+    if (this.searchValue()) {
+      const filtered = this.incomeList().filter((income) => {
+        return income.name
+          .toLowerCase()
+          .includes(this.searchValue()?.toLowerCase() || '');
+      });
+
+      return filtered;
+    }
+
+    return this.incomeList();
+  });
 
   onAddIncome(): void {
     this.openModal(true, null);

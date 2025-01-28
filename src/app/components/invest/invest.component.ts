@@ -1,10 +1,19 @@
-import { Component, inject, OnInit, signal, Signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+  Signal,
+} from '@angular/core';
 import { InvestmentsService } from '../../services/investments/investments.service';
 import { Invest } from '../../models/invest.model';
 import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
 import { DatePipe } from '@angular/common';
 import { InvestFormComponent } from './invest-form/invest-form.component';
 import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-invest',
@@ -14,10 +23,13 @@ import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
     DatePipe,
     InvestFormComponent,
     ModalDeleteComponent,
+    ReactiveFormsModule,
   ],
   templateUrl: './invest.component.html',
 })
 export class InvestComponent implements OnInit {
+  private investmentsService = inject(InvestmentsService);
+
   title: string = 'Investissements';
   investmentsList!: Signal<Invest[]>;
   isLoading!: Signal<boolean>;
@@ -29,13 +41,28 @@ export class InvestComponent implements OnInit {
   isShowModalDelete = signal<boolean>(false);
   investId!: string;
 
-  private investmentsService = inject(InvestmentsService);
+  search = new FormControl('', { nonNullable: true });
+  private searchValue = toSignal(this.search.valueChanges);
 
   ngOnInit(): void {
     this.investmentsList = this.investmentsService.investmentsList;
     this.isLoading = this.investmentsService.isLoadingState;
     this.totalInvestments = this.investmentsService.totalInvestments;
   }
+
+  readonly filteredInvestmentsList: Signal<Invest[]> = computed(() => {
+    if (this.searchValue()) {
+      const filtered = this.investmentsList().filter((invest) => {
+        return invest.name
+          .toLowerCase()
+          .includes(this.searchValue()?.toLowerCase() || '');
+      });
+
+      return filtered;
+    }
+
+    return this.investmentsList();
+  });
 
   onAddInvest(): void {
     this.openModalForm(true, null);

@@ -1,12 +1,12 @@
-import { Component, computed, inject, signal, Signal } from '@angular/core';
-import { ExpenseService } from '../../services/expense/expense.service';
-import { Expense } from '../../models/expense';
-import { ExpensesFormComponent } from './expenses-form/expenses-form.component';
-import { DatePipe } from '@angular/common';
-import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
-import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, signal, Signal } from "@angular/core";
+import { ExpenseService } from "../../services/expense/expense.service";
+import { Expense } from "../../models/expense";
+import { ExpensesFormComponent } from "./expenses-form/expenses-form.component";
+import { DatePipe } from "@angular/common";
+import { ModalDeleteComponent } from "./modal-delete/modal-delete.component";
+import { LoaderSpinnerComponent } from "../ui/loader-spinner/loader-spinner.component";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-expenses',
@@ -46,13 +46,11 @@ export class ExpensesComponent {
 
   readonly filteredExpenseList: Signal<Expense[]> = computed(() => {
     if (this.searchValue()) {
-      const filtered = this.expenseList().filter((expense) => {
+      return this.expenseList().filter((expense) => {
         return expense.name
-          .toLowerCase()
-          .includes(this.searchValue()?.toLowerCase() || '');
+        .toLowerCase()
+        .includes(this.searchValue()?.toLowerCase() || '');
       });
-
-      return filtered;
     }
 
     return this.expenseList();

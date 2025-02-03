@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject } from "@angular/core";
+import { Router, RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-sidebar',
@@ -7,4 +7,10 @@ import { RouterLink } from '@angular/router';
   imports: [RouterLink],
   templateUrl: './sidebar.component.html',
 })
-export class SidebarComponent {}
+export class SidebarComponent {
+  router = inject(Router);
+
+  logout(): void {
+    this.router.navigate(['/auth']).then(r => console.log(r));
+  }
+}

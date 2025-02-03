@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, Signal, signal } from '@angular/core';
 import { Category, Expense } from '../../models/expense';
-import { SupabaseService } from '../supabase.service';
+import { SupabaseService } from '../supabase/supabase.service';
 import { catchError, EMPTY, from, map, Observable, switchMap, tap } from 'rxjs';
 
 @Injectable({

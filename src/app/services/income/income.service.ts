@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, Signal, signal } from '@angular/core';
 import { catchError, EMPTY, from, map, Observable, tap } from 'rxjs';
 import { Income } from '../../models/income';
-import { SupabaseService } from '../supabase.service';
+import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable({
   providedIn: 'root',

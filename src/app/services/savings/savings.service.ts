@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, Signal, signal } from '@angular/core';
 import { Saving } from '../../models/saving';
-import { SupabaseService } from '../supabase.service';
+import { SupabaseService } from '../supabase/supabase.service';
 import { catchError, EMPTY, from, map, Observable, tap } from 'rxjs';
 
 @Injectable({

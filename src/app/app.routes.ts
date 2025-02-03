@@ -5,8 +5,13 @@ import { IncomesComponent } from './components/incomes/incomes.component';
 import { SavingsComponent } from './components/savings/savings.component';
 import { InvestComponent } from './components/invest/invest.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { AuthComponent } from "./components/auth/auth.component";
 
 export const routes: Routes = [
+  {
+    path: 'auth',
+    component: AuthComponent,
+  },
   {
     path: 'dashboard',
     component: DashboardComponent,

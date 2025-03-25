@@ -7,10 +7,10 @@ import { catchError, EMPTY, from, map, Observable, tap } from 'rxjs';
   providedIn: 'root',
 })
 export class SavingsService {
+  private supabaseService = inject(SupabaseService);
+
   private readonly savings = signal<Saving[]>([]);
   private readonly isLoading = signal<boolean>(false);
-
-  private supabaseService = inject(SupabaseService);
 
   constructor() {
     this.loadSavings();

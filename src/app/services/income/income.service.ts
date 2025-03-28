@@ -2,6 +2,7 @@ import { computed, inject, Injectable, Signal, signal } from '@angular/core';
 import { catchError, EMPTY, from, map, Observable, tap } from 'rxjs';
 import { Income } from '../../models/income';
 import { SupabaseService } from '../supabase/supabase.service';
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +41,7 @@ export class IncomeService {
     this.isLoading.set(true);
     this.fetchIncomes$()
       .pipe(
+        takeUntilDestroyed(),
         tap((data) => {
           this.incomes.set(data);
           this.isLoading.set(false);
@@ -64,6 +66,7 @@ export class IncomeService {
   addIncome(income: Omit<Income, 'id'>): void {
     this.createIncome$(income)
       .pipe(
+        takeUntilDestroyed(),
         tap((data) => {
           if (data.length > 0) {
             this.incomes.update((incomes) => [...incomes, data[0]]);
@@ -94,6 +97,7 @@ export class IncomeService {
     if (id) {
       this.editIncome$(id, newIncome)
         .pipe(
+          takeUntilDestroyed(),
           tap((data) => {
             if (data.length > 0) {
               this.incomes.update((incomes) => {
@@ -121,6 +125,7 @@ export class IncomeService {
   deleteIncome(id: string): void {
     this.removeIncome$(id)
       .pipe(
+        takeUntilDestroyed(),
         tap((data) => {
           if (data.length > 0) {
             this.incomes.update((incomes) => {

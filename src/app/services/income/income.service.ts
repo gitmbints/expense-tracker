@@ -7,10 +7,10 @@ import { SupabaseService } from '../supabase/supabase.service';
   providedIn: 'root',
 })
 export class IncomeService {
+  private supabaseService: SupabaseService = inject(SupabaseService);
+
   private readonly incomes = signal<Income[]>([]);
   private readonly isLoading = signal(false);
-
-  private supabaseService: SupabaseService = inject(SupabaseService);
 
   constructor() {
     this.loadIncomes();

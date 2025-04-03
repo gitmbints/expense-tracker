@@ -37,12 +37,12 @@ export class SavingsFormComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(): void {
-    const income = this.selectedSaving();
+    const saving = this.selectedSaving();
 
-    if (income) {
+    if (saving) {
       this.savingForm.patchValue({
-        created_at: income.created_at,
-        amount: income.amount,
+        created_at: saving.created_at,
+        amount: saving.amount,
       });
     }
   }

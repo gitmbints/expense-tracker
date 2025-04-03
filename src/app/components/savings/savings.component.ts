@@ -1,10 +1,12 @@
-import { Component, inject, OnInit, signal, Signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal, Signal } from "@angular/core";
 import { SavingsService } from '../../services/savings/savings.service';
 import { Saving } from '../../models/saving';
 import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
 import { DatePipe } from '@angular/common';
 import { SavingsFormComponent } from './savings-form/savings-form.component';
 import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
+import { takeUntil } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-savings',
@@ -18,24 +20,29 @@ import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
   templateUrl: './savings.component.html',
 })
 export class SavingsComponent implements OnInit {
-  title: string = 'Epargnes';
+  private savingsService = inject(SavingsService);
 
-  savingList!: Signal<Saving[]>;
-  isLoading!: Signal<boolean>;
+  savingList = this.savingsService.savingList;
+  isLoading = this.savingsService.isLoadingState;
+  totalSavings = this.savingsService.totalSaving;
 
   isAddForm = signal<boolean>(true);
   isShowModalForm = signal<boolean>(false);
   selectedSaving: Saving | null = null;
   isShowModalDelete = signal<boolean>(false);
   savingId!: string;
-  totalSavings!: Signal<number>;
 
-  private savingsService = inject(SavingsService);
+  protected readonly destroy = inject(DestroyRef);
 
   ngOnInit(): void {
-    this.savingList = this.savingsService.savingList;
-    this.isLoading = this.savingsService.isLoadingState;
-    this.totalSavings = this.savingsService.totalSaving;
+    this.loadSavings();
+  }
+
+  private loadSavings(): void {
+    this.savingsService.fetchSavings$().pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next: () => { console.log("Saving loaded successfully!") },
+      error: () => { console.log("Load saving failed!") }
+    })
   }
 
   onAddSaving(): void {

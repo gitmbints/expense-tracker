@@ -35,21 +35,20 @@ export type ChartOptions = {
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
-  readonly title: string = 'Dashboard';
-  readonly totalIncome: Signal<number>;
-  readonly totalExpense: Signal<number>;
-  readonly remaining: Signal<number>;
-  readonly isLoading: Signal<boolean>;
-  readonly totalInvestments: Signal<number>;
-  readonly totalSavings: Signal<number>;
-
-  @ViewChild('chart', { static: false }) chart!: ChartComponent;
-  public chartOptions: ChartOptions;
-
   incomeService = inject(IncomeService);
   expenseService = inject(ExpenseService);
   investmentsService = inject(InvestmentsService);
   savingsService = inject(SavingsService);
+
+  readonly totalIncome = this.incomeService.totalIncome;
+  readonly totalExpense = this.expenseService.totalExpense;
+  readonly remaining = this.calculateRemaining();
+  readonly isLoading = this.expenseService.getIsLoading();
+  readonly totalInvestments = this.investmentsService.totalInvestments;
+  readonly totalSavings = this.savingsService.totalSaving;
+
+  @ViewChild('chart', { static: false }) chart!: ChartComponent;
+  public chartOptions: ChartOptions;
 
   expensesByCategory: Signal<{ category: Category; total: number }[]> =
     inject(ExpenseService).getExpensesByCategory();
@@ -58,13 +57,7 @@ export class DashboardComponent implements OnInit {
   );
 
   constructor() {
-    this.totalIncome = this.incomeService.totalIncome;
-    this.totalExpense = this.expenseService.totalExpense;
-    this.totalInvestments = this.investmentsService.totalInvestments;
-    this.totalSavings = this.savingsService.totalSaving;
-    this.remaining = this.calculateRemaining();
     this.chartOptions = this.initializeChartOptions();
-    this.isLoading = this.expenseService.getIsLoading();
   }
 
   ngOnInit(): void {

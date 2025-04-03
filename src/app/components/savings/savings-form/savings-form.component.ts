@@ -1,11 +1,11 @@
 import {
-  Component,
+  Component, DestroyRef,
   inject,
   input,
   OnChanges,
   OnInit,
-  output,
-} from '@angular/core';
+  output
+} from "@angular/core";
 import { Saving } from '../../../models/saving';
 import { SavingsService } from '../../../services/savings/savings.service';
 import { Flowbite } from '../../../flowbite/flowbite';
@@ -17,6 +17,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-savings-form',
@@ -26,11 +27,13 @@ import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
 })
 @Flowbite()
 export class SavingsFormComponent implements OnInit, OnChanges {
+  readonly savingsService = inject(SavingsService);
+
   readonly isAddForm = input.required<boolean>();
   readonly closeModalForm = output();
   readonly selectedSaving = input<Saving | null>(null);
 
-  savingsService = inject(SavingsService);
+  protected readonly destroy = inject(DestroyRef);
 
   ngOnInit(): void {
     this.initDatePicker();
@@ -88,9 +91,15 @@ export class SavingsFormComponent implements OnInit, OnChanges {
     const newSaving = this.savingForm.getRawValue();
 
     if (this.isAddForm()) {
-      this.savingsService.addSaving(newSaving);
+      this.savingsService.createSaving$(newSaving).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+        next: () => { console.log("Saving added successfully!") },
+        error: () => { console.log("Add saving failed!") }
+      });
     } else {
-      this.savingsService.updateSaving(this.selectedSaving()?.id, newSaving);
+      this.savingsService.editSaving$(this.selectedSaving()?.id, newSaving).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+        next: () => { console.log("Saving updated successfully!") },
+        error: () => { console.log("Update saving failed!") }
+      });
     }
 
     this.savingForm.reset();

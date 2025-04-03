@@ -12,39 +12,25 @@ export class SavingsService {
   private readonly savings = signal<Saving[]>([]);
   private readonly isLoading = signal<boolean>(false);
 
-  constructor() {
-    this.loadSavings();
-  }
-
   savingList = this.savings.asReadonly();
   isLoadingState = this.isLoading.asReadonly();
 
-  readonly totalSaving: Signal<number> = computed(() => {
-    return this.savings().reduce((total, saving) => total + saving.amount, 0);
-  });
-
-  private fetchSavings$(): Observable<Saving[]> {
+  fetchSavings$(): Observable<Saving[]> {
+    this.isLoading.set(true);
     return from(
       this.supabaseService.supabase
         .from('savings')
         .select(`id, created_at, amount`),
-    ).pipe(map(this.processResponse<Saving>), catchError(this.processError));
+    ).pipe(
+      map(this.processResponse<Saving>),
+      tap((data) => {
+        this.savings.set(data);
+        this.isLoading.set(false);
+      }),
+      catchError(this.processError));
   }
 
-  private loadSavings(): void {
-    this.isLoading.set(true);
-
-    this.fetchSavings$()
-      .pipe(
-        tap((data) => {
-          this.savings.set(data);
-          this.isLoading.set(false);
-        }),
-      )
-      .subscribe();
-  }
-
-  private createSaving$(saving: Omit<Saving, 'id'>): Observable<Saving[]> {
+  createSaving$(saving: Omit<Saving, 'id'>): Observable<Saving[]> {
     return from(
       this.supabaseService.supabase
         .from('savings')
@@ -53,11 +39,18 @@ export class SavingsService {
           amount: saving.amount,
         })
         .select(),
-    ).pipe(map(this.processResponse<Saving>), catchError(this.processError));
+    ).pipe(
+      map(this.processResponse<Saving>),
+      tap((data) => {
+        if (data.length > 0) {
+          this.savings.update((savings) => [...savings, data[0]]);
+        }
+      }),
+      catchError(this.processError));
   }
 
-  private editSaving$(
-    id: string,
+  editSaving$(
+    id: string | undefined,
     newSaving: Omit<Saving, 'id'>,
   ): Observable<Saving[]> {
     return from(
@@ -69,62 +62,42 @@ export class SavingsService {
         })
         .eq('id', id)
         .select(),
-    ).pipe(map(this.processResponse<Saving>), catchError(this.processError));
+    ).pipe(
+      map(this.processResponse<Saving>),
+      tap((data) => {
+        if (data.length > 0) {
+          this.savings.update((savings) => {
+            return savings.map((saving) =>
+              saving.id === id ? { ...data[0], id } : saving,
+            );
+          });
+        }
+      }),
+      catchError(this.processError));
   }
 
-  private removeSaving$(id: string): Observable<Saving[]> {
+  removeSaving$(id: string): Observable<Saving[]> {
     return from(
       this.supabaseService.supabase
         .from('savings')
         .delete()
         .eq('id', id)
         .select(),
-    ).pipe(map(this.processResponse<Saving>), catchError(this.processError));
+    ).pipe(
+      map(this.processResponse<Saving>),
+      tap((data) => {
+        if (data.length > 0) {
+          this.savings.update((savings) => {
+            return savings.filter((saving) => saving.id !== id);
+          });
+        }
+      }),
+      catchError(this.processError));
   }
 
-  addSaving(saving: Omit<Saving, 'id'>): void {
-    this.createSaving$(saving)
-      .pipe(
-        tap((data) => {
-          if (data.length > 0) {
-            this.savings.update((savings) => [...savings, data[0]]);
-          }
-        }),
-      )
-      .subscribe();
-  }
-
-  updateSaving(id: string | undefined, newSaving: Omit<Saving, 'id'>): void {
-    if (id) {
-      this.editSaving$(id, newSaving)
-        .pipe(
-          tap((data) => {
-            if (data.length > 0) {
-              this.savings.update((savings) => {
-                return savings.map((saving) =>
-                  saving.id === id ? { ...data[0], id } : saving,
-                );
-              });
-            }
-          }),
-        )
-        .subscribe();
-    }
-  }
-
-  deleteSaving(id: string): void {
-    this.removeSaving$(id)
-      .pipe(
-        tap((data) => {
-          if (data.length > 0) {
-            this.savings.update((savings) => {
-              return savings.filter((saving) => saving.id !== id);
-            });
-          }
-        }),
-      )
-      .subscribe();
-  }
+  readonly totalSaving: Signal<number> = computed(() => {
+    return this.savings().reduce((total, saving) => total + saving.amount, 0);
+  });
 
   private processResponse<T>(response: { data: any; error: any }): T[] {
     const { data, error } = response;

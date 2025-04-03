@@ -99,13 +99,15 @@ export class SavingsFormComponent implements OnInit, OnChanges {
         },
         error: () => {
           console.log("Add saving failed!");
-          this.savingForm.reset();
-          this.handleCloseModalForm();
         }
       });
     } else {
       this.savingsService.editSaving$(this.selectedSaving()?.id, newSaving).pipe(takeUntilDestroyed(this.destroy)).subscribe({
-        next: () => { console.log("Saving updated successfully!") },
+        next: () => {
+          console.log("Saving updated successfully!");
+          this.savingForm.reset();
+          this.handleCloseModalForm();
+        },
         error: () => { console.log("Update saving failed!") }
       });
     }

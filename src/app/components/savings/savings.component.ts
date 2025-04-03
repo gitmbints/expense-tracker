@@ -22,9 +22,9 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 export class SavingsComponent implements OnInit {
   private savingsService = inject(SavingsService);
 
-  savingList = this.savingsService.savingList;
-  isLoading = this.savingsService.isLoadingState;
-  totalSavings = this.savingsService.totalSaving;
+  readonly savingList = this.savingsService.savingList;
+  readonly isLoading = this.savingsService.isLoadingState;
+  readonly totalSavings = this.savingsService.totalSaving;
 
   isAddForm = signal<boolean>(true);
   isShowModalForm = signal<boolean>(false);

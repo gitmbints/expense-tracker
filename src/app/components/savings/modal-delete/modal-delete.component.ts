@@ -23,9 +23,11 @@ export class ModalDeleteComponent {
 
   onDeleteItem(): void {
     this.savingsService.removeSaving$(this.id()).pipe(takeUntilDestroyed(this.destroy)).subscribe({
-      next: () => { console.log("Saving deleted successfully!") },
+      next: () => {
+        console.log("Saving deleted successfully!");
+        this.closeModal.emit();
+      },
       error: () => { console.log("Delete saving failed!") }
     });
-    this.closeModal.emit();
   }
 }

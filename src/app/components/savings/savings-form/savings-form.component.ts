@@ -92,8 +92,16 @@ export class SavingsFormComponent implements OnInit, OnChanges {
 
     if (this.isAddForm()) {
       this.savingsService.createSaving$(newSaving).pipe(takeUntilDestroyed(this.destroy)).subscribe({
-        next: () => { console.log("Saving added successfully!") },
-        error: () => { console.log("Add saving failed!") }
+        next: () => {
+          console.log("Saving added successfully!");
+          this.savingForm.reset();
+          this.handleCloseModalForm();
+        },
+        error: () => {
+          console.log("Add saving failed!");
+          this.savingForm.reset();
+          this.handleCloseModalForm();
+        }
       });
     } else {
       this.savingsService.editSaving$(this.selectedSaving()?.id, newSaving).pipe(takeUntilDestroyed(this.destroy)).subscribe({
@@ -101,9 +109,6 @@ export class SavingsFormComponent implements OnInit, OnChanges {
         error: () => { console.log("Update saving failed!") }
       });
     }
-
-    this.savingForm.reset();
-    this.handleCloseModalForm();
   }
 
   handleCloseModalForm(): void {

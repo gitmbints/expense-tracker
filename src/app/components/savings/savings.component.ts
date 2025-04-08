@@ -21,6 +21,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 })
 export class SavingsComponent implements OnInit {
   private savingsService = inject(SavingsService);
+  protected readonly destroy = inject(DestroyRef);
 
   readonly savingList = this.savingsService.savingList;
   readonly isLoading = this.savingsService.isLoadingState;
@@ -32,8 +33,6 @@ export class SavingsComponent implements OnInit {
   isShowModalDelete = signal<boolean>(false);
   savingId!: string;
 
-  protected readonly destroy = inject(DestroyRef);
-
   ngOnInit(): void {
     this.loadSavings();
   }
@@ -41,7 +40,7 @@ export class SavingsComponent implements OnInit {
   private loadSavings(): void {
     this.savingsService.fetchSavings$().pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: () => { console.log("Saving loaded successfully!") },
-      error: () => { console.log("Load saving failed!") }
+      error: () => { console.log("Loading saving failed!") }
     })
   }
 

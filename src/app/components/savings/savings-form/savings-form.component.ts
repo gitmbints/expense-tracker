@@ -28,12 +28,11 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 @Flowbite()
 export class SavingsFormComponent implements OnInit, OnChanges {
   readonly savingsService = inject(SavingsService);
+  protected readonly destroy = inject(DestroyRef);
 
   readonly isAddForm = input.required<boolean>();
   readonly closeModalForm = output();
   readonly selectedSaving = input<Saving | null>(null);
-
-  protected readonly destroy = inject(DestroyRef);
 
   ngOnInit(): void {
     this.initDatePicker();
@@ -98,7 +97,7 @@ export class SavingsFormComponent implements OnInit, OnChanges {
           this.handleCloseModalForm();
         },
         error: () => {
-          console.log("Add saving failed!");
+          console.log("Adding saving failed!");
         }
       });
     } else {
@@ -108,7 +107,7 @@ export class SavingsFormComponent implements OnInit, OnChanges {
           this.savingForm.reset();
           this.handleCloseModalForm();
         },
-        error: () => { console.log("Update saving failed!") }
+        error: () => { console.log("Updating saving failed!") }
       });
     }
   }

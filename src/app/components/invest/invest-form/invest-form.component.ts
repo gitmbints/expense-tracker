@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, output } from '@angular/core';
+import { Component, DestroyRef, inject, input, OnChanges, OnInit, output } from "@angular/core";
 import { Invest } from '../../../models/invest.model';
 import { InvestmentsService } from '../../../services/investments/investments.service';
 import { Datepicker } from 'flowbite';
@@ -10,6 +10,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-invest-form',
@@ -18,12 +19,13 @@ import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
   templateUrl: './invest-form.component.html',
 })
 @Flowbite()
-export class InvestFormComponent implements OnInit {
+export class InvestFormComponent implements OnInit, OnChanges {
+  private investmentsService = inject(InvestmentsService);
+  protected readonly destroy = inject(DestroyRef);
+
   readonly isAddForm = input.required<boolean>();
   readonly isCloseModal = output();
   readonly selectedInvest = input<Invest | null>(null);
-
-  private investmentsService = inject(InvestmentsService);
 
   ngOnInit(): void {
     this.initDatePicker();
@@ -86,16 +88,31 @@ export class InvestFormComponent implements OnInit {
     const newInvest = this.investForm.getRawValue();
 
     if (this.isAddForm()) {
-      this.investmentsService.addInvest(newInvest);
+      this.investmentsService.createInvest$(newInvest).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+        next: () => {
+          console.log("Invest added successfully!");
+          this.investForm.reset();
+          this.handleCloseModal();
+        },
+        error: () => {
+          console.log("Adding Invest failed!");
+        }
+      });
     } else {
-      this.investmentsService.updateInvest(
+      this.investmentsService.editInvest$(
         this.selectedInvest()?.id,
         newInvest,
-      );
+      ).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+        next: () => {
+          console.log("Invest updated successfully!");
+          this.investForm.reset();
+          this.handleCloseModal();
+        },
+        error: () => {
+          console.log("Updating Invest failed!");
+        }
+      });
     }
-
-    this.investForm.reset();
-    this.handleCloseModal();
   }
 
   handleCloseModal(): void {

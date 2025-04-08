@@ -7,47 +7,30 @@ import { catchError, EMPTY, from, map, Observable, tap } from 'rxjs';
   providedIn: 'root',
 })
 export class InvestmentsService {
+  private supabaseService = inject(SupabaseService);
+
   private readonly investments = signal<Invest[]>([]);
   private readonly isLoading = signal<boolean>(false);
 
   investmentsList = this.investments.asReadonly();
   isLoadingState = this.isLoading.asReadonly();
 
-  private supabaseService = inject(SupabaseService);
-
-  constructor() {
-    this.loadInvestments();
-  }
-
-  readonly totalInvestments: Signal<number> = computed(() => {
-    return this.investments().reduce(
-      (total, invest) => total + invest.amount,
-      0,
-    );
-  });
-
-  private fetchInvestments$(): Observable<Invest[]> {
+  fetchInvestments$(): Observable<Invest[]> {
+    this.isLoading.set(true);
     return from(
       this.supabaseService.supabase
         .from('investments')
         .select(`id, name, amount, date`),
-    ).pipe(map(this.processResponse<Invest>), catchError(this.processError));
+    ).pipe(map(
+      this.processResponse<Invest>),
+      tap((data) => {
+        this.investments.set(data);
+        this.isLoading.set(false);
+      }),
+      catchError(this.processError));
   }
 
-  private loadInvestments(): void {
-    this.isLoading.set(true);
-
-    this.fetchInvestments$()
-      .pipe(
-        tap((data) => {
-          this.investments.set(data);
-          this.isLoading.set(false);
-        }),
-      )
-      .subscribe();
-  }
-
-  private createInvest$(income: Omit<Invest, 'id'>): Observable<Invest[]> {
+  createInvest$(income: Omit<Invest, 'id'>): Observable<Invest[]> {
     return from(
       this.supabaseService.supabase
         .from('investments')
@@ -57,23 +40,18 @@ export class InvestmentsService {
           date: income.date,
         })
         .select(),
-    ).pipe(map(this.processResponse<Invest>), catchError(this.processError));
+    ).pipe(
+      map(this.processResponse<Invest>),
+      tap((data) => {
+        if (data.length > 0) {
+          this.investments.update((investments) => [...investments, data[0]]);
+        }
+      }),
+      catchError(this.processError));
   }
 
-  addInvest(invest: Omit<Invest, 'id'>): void {
-    this.createInvest$(invest)
-      .pipe(
-        tap((data) => {
-          if (data.length > 0) {
-            this.investments.update((investments) => [...investments, data[0]]);
-          }
-        }),
-      )
-      .subscribe();
-  }
-
-  private editInvest$(
-    id: string,
+  editInvest$(
+    id: string | undefined,
     newInvest: Omit<Invest, 'id'>,
   ): Observable<Invest[]> {
     return from(
@@ -86,50 +64,45 @@ export class InvestmentsService {
         })
         .eq('id', id)
         .select(),
-    ).pipe(map(this.processResponse<Invest>), catchError(this.processError));
+    ).pipe(
+      map(this.processResponse<Invest>),
+      tap((data) => {
+        if (data.length > 0) {
+          this.investments.update((investments) => {
+            return investments.map((invest) =>
+              invest.id === id ? { ...data[0], id } : invest,
+            );
+          });
+        }
+      }),
+      catchError(this.processError));
   }
 
-  updateInvest(id: string | undefined, newInvest: Omit<Invest, 'id'>): void {
-    if (id) {
-      this.editInvest$(id, newInvest)
-        .pipe(
-          tap((data) => {
-            if (data.length > 0) {
-              this.investments.update((investments) => {
-                return investments.map((invest) =>
-                  invest.id === id ? { ...data[0], id } : invest,
-                );
-              });
-            }
-          }),
-        )
-        .subscribe();
-    }
-  }
-
-  private removeInvest$(id: string): Observable<Invest[]> {
+  removeInvest$(id: string): Observable<Invest[]> {
     return from(
       this.supabaseService.supabase
         .from('investments')
         .delete()
         .eq('id', id)
         .select(),
-    ).pipe(map(this.processResponse<Invest>), catchError(this.processError));
+    ).pipe(
+      map(this.processResponse<Invest>),
+      tap((data) => {
+        if (data.length > 0) {
+          this.investments.update((investments) => {
+            return investments.filter((invest) => invest.id !== id);
+          });
+        }
+      }),
+      catchError(this.processError));
   }
 
-  deleteInvest(id: string): void {
-    this.removeInvest$(id)
-      .pipe(
-        tap((data) => {
-          if (data.length > 0) {
-            this.investments.update((investments) => {
-              return investments.filter((invest) => invest.id !== id);
-            });
-          }
-        }),
-      )
-      .subscribe();
-  }
+  readonly totalInvestments: Signal<number> = computed(() => {
+    return this.investments().reduce(
+      (total, invest) => total + invest.amount,
+      0,
+    );
+  });
 
   private processResponse<T>(response: { data: any; error: any }): T[] {
     const { data, error } = response;

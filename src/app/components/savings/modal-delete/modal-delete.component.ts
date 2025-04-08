@@ -11,11 +11,10 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 })
 export class ModalDeleteComponent {
   readonly savingsService = inject(SavingsService);
+  protected readonly destroy = inject(DestroyRef);
 
   readonly closeModal = output<void>();
   readonly id = input.required<string>();
-
-  protected readonly destroy = inject(DestroyRef);
 
   onCloseModal(): void {
     this.closeModal.emit();
@@ -27,7 +26,7 @@ export class ModalDeleteComponent {
         console.log("Saving deleted successfully!");
         this.closeModal.emit();
       },
-      error: () => { console.log("Delete saving failed!") }
+      error: () => { console.log("Deleting saving failed!") }
     });
   }
 }

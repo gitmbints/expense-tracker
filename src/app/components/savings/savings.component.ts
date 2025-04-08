@@ -5,7 +5,6 @@ import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.comp
 import { DatePipe } from '@angular/common';
 import { SavingsFormComponent } from './savings-form/savings-form.component';
 import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
-import { takeUntil } from "rxjs";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({

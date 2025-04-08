@@ -1,12 +1,12 @@
 import {
-  Component,
+  Component, DestroyRef,
   inject,
   input,
   OnChanges,
   OnInit,
   output,
-  Signal,
-} from '@angular/core';
+  Signal
+} from "@angular/core";
 import { ExpenseService } from '../../../services/expense/expense.service';
 import {
   FormControl,
@@ -18,6 +18,7 @@ import { Datepicker } from 'flowbite';
 import { Flowbite } from '../../../flowbite/flowbite';
 import { Category, Expense } from '../../../models/expense';
 import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-expenses-form',
@@ -27,21 +28,19 @@ import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
 })
 @Flowbite()
 export class ExpensesFormComponent implements OnInit, OnChanges {
-  readonly expenseCategoryList: Signal<Category[]>;
+  private expenseService: ExpenseService = inject(ExpenseService);
+  protected readonly destroy = inject(DestroyRef);
+
+  readonly expenseCategoryList = this.expenseService.categoryList;
 
   readonly isAddForm = input.required<boolean>();
   readonly selectedExpense = input<Expense | null>(null);
 
   readonly isCloseModal = output();
 
-  expenseService: ExpenseService = inject(ExpenseService);
-
-  constructor() {
-    this.expenseCategoryList = this.expenseService.getCategoryList();
-  }
-
   ngOnInit(): void {
     this.initDatePicker();
+    this.loadCategory();
   }
 
   ngOnChanges(): void {
@@ -55,6 +54,13 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
         date: expense.date,
       });
     }
+  }
+
+  private loadCategory(): void {
+    this.expenseService.fetchCategoryList$().pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next: () => { console.log("Category loaded successfully!") },
+      error: () => { console.log("Loading category failed!") }
+    })
   }
 
   private initDatePicker(): void {

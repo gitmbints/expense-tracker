@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, Signal } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, Signal } from "@angular/core";
 import { ExpenseService } from "../../services/expense/expense.service";
 import { Expense } from "../../models/expense";
 import { ExpensesFormComponent } from "./expenses-form/expenses-form.component";
@@ -6,7 +6,7 @@ import { DatePipe } from "@angular/common";
 import { ModalDeleteComponent } from "./modal-delete/modal-delete.component";
 import { LoaderSpinnerComponent } from "../ui/loader-spinner/loader-spinner.component";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-expenses',
@@ -20,16 +20,17 @@ import { toSignal } from "@angular/core/rxjs-interop";
   ],
   templateUrl: './expenses.component.html',
 })
-export class ExpensesComponent {
+export class ExpensesComponent implements OnInit {
   private expenseService: ExpenseService = inject(ExpenseService);
+  protected readonly destroy = inject(DestroyRef);
 
-  readonly title: string = 'Dépenses';
-  readonly expenseList: Signal<Expense[]>;
+  readonly expenseList = this.expenseService.expenseList;
+  readonly isLoading = this.expenseService.isLoadingState;
+  readonly totalExpense = this.expenseService.totalExpense;
+
   readonly isAddForm = signal<boolean>(true);
   readonly isShowModal = signal<boolean>(false);
-  readonly isLoading: Signal<boolean>;
   readonly isShowModalDelete = signal<boolean>(false);
-  readonly totalExpense: Signal<number>;
 
   selectedExpense: Expense | null = null;
   expenseId!: string;
@@ -37,12 +38,6 @@ export class ExpensesComponent {
   search = new FormControl('', { nonNullable: true });
 
   private searchValue = toSignal(this.search.valueChanges);
-
-  constructor() {
-    this.expenseList = this.expenseService.getExpenseList();
-    this.isLoading = this.expenseService.getIsLoading();
-    this.totalExpense = this.expenseService.totalExpense;
-  }
 
   readonly filteredExpenseList: Signal<Expense[]> = computed(() => {
     if (this.searchValue()) {
@@ -55,6 +50,17 @@ export class ExpensesComponent {
 
     return this.expenseList();
   });
+
+  ngOnInit(): void {
+    this.loadExpenses();
+  }
+
+  private loadExpenses(): void {
+    this.expenseService.fetchExpenses$().pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next: () => { console.log("Expenses loaded successfully!") },
+      error: () => { console.log("Loading expenses failed!") }
+    })
+  }
 
   onAddExpense(): void {
     this.openModal(true, null);

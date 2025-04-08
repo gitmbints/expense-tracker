@@ -35,15 +35,15 @@ export type ChartOptions = {
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
-  incomeService = inject(IncomeService);
-  expenseService = inject(ExpenseService);
-  investmentsService = inject(InvestmentsService);
-  savingsService = inject(SavingsService);
+  readonly incomeService = inject(IncomeService);
+  readonly expenseService = inject(ExpenseService);
+  readonly investmentsService = inject(InvestmentsService);
+  readonly savingsService = inject(SavingsService);
 
   readonly totalIncome = this.incomeService.totalIncome;
   readonly totalExpense = this.expenseService.totalExpense;
   readonly remaining = this.calculateRemaining();
-  readonly isLoading = this.expenseService.getIsLoading();
+  readonly isLoading = this.expenseService.isLoadingState;
   readonly totalInvestments = this.investmentsService.totalInvestments;
   readonly totalSavings = this.savingsService.totalSaving;
 

@@ -7,43 +7,29 @@ import { catchError, EMPTY, from, map, Observable, switchMap, tap } from 'rxjs';
   providedIn: 'root',
 })
 export class ExpenseService {
-  private readonly expenses = signal<Expense[]>([]);
-  private readonly isLoading = signal(false);
-  private readonly categoryList = signal<Category[]>([]);
-
-  getExpenseList(): Signal<Expense[]> {
-    return this.expenses.asReadonly();
-  }
-
-  getIsLoading(): Signal<boolean> {
-    return this.isLoading.asReadonly();
-  }
-
-  getCategoryList(): Signal<Category[]> {
-    return this.categoryList.asReadonly();
-  }
-
-  readonly totalExpense: Signal<number> = computed(() => {
-    return this.expenses().reduce(
-      (total, expense) => total + expense.amount,
-      0,
-    );
-  });
-
   private supabaseService: SupabaseService = inject(SupabaseService);
 
-  constructor() {
-    this.loadExpenses();
-    this.loadCategoryList();
-  }
+  private readonly expenses = signal<Expense[]>([]);
+  private readonly isLoading = signal(false);
+  private readonly category = signal<Category[]>([]);
 
-  // Observable-based fetching function with RxJS operators
-  private fetchExpenses$(): Observable<Expense[]> {
+  expenseList = this.expenses.asReadonly();
+  isLoadingState = this.isLoading.asReadonly();
+  categoryList =  this.category.asReadonly();
+
+  fetchExpenses$(): Observable<Expense[]> {
+    this.isLoading.set(true);
     return from(
       this.supabaseService.supabase
         .from('expenses')
         .select(`id, name, amount, date, categories (id, name)`),
-    ).pipe(map(this.processResponse<Expense>), catchError(this.processError));
+    ).pipe(
+      map(this.processResponse<Expense>),
+      tap((data) => {
+        this.expenses.set(data);
+        this.isLoading.set(false);
+      }),
+      catchError(this.processError));
   }
 
   private createExpense$(expense: Omit<Expense, 'id'>): Observable<Expense[]> {
@@ -172,32 +158,15 @@ export class ExpenseService {
     ).pipe(map(this.processResponse<Expense>), catchError(this.processError));
   }
 
-  private fetchCategoryList$(): Observable<Category[]> {
+  fetchCategoryList$(): Observable<Category[]> {
     return from(
       this.supabaseService.supabase.from('categories').select('*'),
-    ).pipe(map(this.processResponse<Category>), catchError(this.processError));
-  }
-
-  private loadExpenses(): void {
-    this.isLoading.set(true);
-    this.fetchExpenses$()
-      .pipe(
-        tap((data) => {
-          this.expenses.set(data);
-          this.isLoading.set(false);
-        }),
-      )
-      .subscribe();
-  }
-
-  private loadCategoryList(): void {
-    this.fetchCategoryList$()
-      .pipe(
-        tap((data) => {
-          this.categoryList.set(data);
-        }),
-      )
-      .subscribe();
+    ).pipe(
+      map(this.processResponse<Category>),
+      tap((data) => {
+        this.category.set(data);
+      }),
+      catchError(this.processError));
   }
 
   addExpense(expense: Omit<Expense, 'id'>): void {
@@ -243,6 +212,13 @@ export class ExpenseService {
       )
       .subscribe();
   }
+
+  readonly totalExpense: Signal<number> = computed(() => {
+    return this.expenses().reduce(
+      (total, expense) => total + expense.amount,
+      0,
+    );
+  });
 
   private processResponse<T>(response: { data: any; error: any }): T[] {
     const { data, error } = response;

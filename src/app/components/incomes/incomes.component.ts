@@ -1,12 +1,20 @@
-import { Component, computed, inject, signal, Signal } from '@angular/core';
-import { IncomeService } from '../../services/income/income.service';
-import { Income } from '../../models/income';
 import { DatePipe } from '@angular/common';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  Signal,
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Income } from '../../models/income';
+import { IncomeService } from '../../services/income/income.service';
+import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
 import { IncomesFormComponent } from './incomes-form/incomes-form.component';
 import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
-import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-incomes',
@@ -20,28 +28,39 @@ import { toSignal } from '@angular/core/rxjs-interop';
   ],
   templateUrl: './incomes.component.html',
 })
-export class IncomesComponent {
-  private incomeService: IncomeService = inject(IncomeService);
+export class IncomesComponent implements OnInit {
+  private incomeService = inject(IncomeService);
+  protected readonly destroy = inject(DestroyRef);
 
-  readonly title: string = 'Revenus';
-  readonly incomeList: Signal<Income[]>;
-  readonly isLoading: Signal<boolean>;
-  readonly isAddForm = signal<boolean>(true);
-  readonly isShowModal = signal<boolean>(false);
-  readonly isShowModalDelete = signal<boolean>(false);
-  readonly totalIncome: Signal<number>;
+  readonly incomeList = this.incomeService.incomesList;
+  readonly isLoading = this.incomeService.isLoadingState;
+  readonly totalIncome = this.incomeService.totalIncome;
 
+  isAddForm = signal<boolean>(true);
+  isShowModal = signal<boolean>(false);
+  isShowModalDelete = signal<boolean>(false);
   incomeId!: string;
   selectedIncome: Income | null = null;
 
   search = new FormControl('', { nonNullable: true });
-
   private searchValue = toSignal(this.search.valueChanges);
 
-  constructor() {
-    this.incomeList = this.incomeService.getIncomeList();
-    this.isLoading = this.incomeService.getIsLoading();
-    this.totalIncome = this.incomeService.totalIncome;
+  ngOnInit(): void {
+    this.loadIncome();
+  }
+
+  private loadIncome(): void {
+    this.incomeService
+      .fetchIncomes$()
+      .pipe(takeUntilDestroyed(this.destroy))
+      .subscribe({
+        next: () => {
+          console.log('Income loaded successfully!');
+        },
+        error: () => {
+          console.log('Loading income failed!');
+        },
+      });
   }
 
   readonly filteredIncomeList: Signal<Income[]> = computed(() => {

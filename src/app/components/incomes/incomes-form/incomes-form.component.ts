@@ -1,22 +1,24 @@
 import {
   Component,
+  DestroyRef,
   inject,
   input,
   OnChanges,
   OnInit,
   output,
 } from '@angular/core';
-import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
-import { IncomeService } from '../../../services/income/income.service';
-import { Flowbite } from '../../../flowbite/flowbite';
-import { Datepicker } from 'flowbite';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { Datepicker } from 'flowbite';
+import { Flowbite } from '../../../flowbite/flowbite';
 import { Income } from '../../../models/income';
+import { IncomeService } from '../../../services/income/income.service';
+import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
 
 @Component({
   selector: 'app-incomes-form',
@@ -26,11 +28,12 @@ import { Income } from '../../../models/income';
 })
 @Flowbite()
 export class IncomesFormComponent implements OnInit, OnChanges {
+  private incomeService = inject(IncomeService);
+  protected readonly destroy = inject(DestroyRef);
+
   readonly isAddForm = input.required<boolean>();
   readonly isCloseModal = output();
   readonly selectedIncome = input<Income | null>(null);
-
-  incomeService = inject(IncomeService);
 
   ngOnInit(): void {
     this.initDatePicker();
@@ -93,13 +96,34 @@ export class IncomesFormComponent implements OnInit, OnChanges {
     const newIncome = this.incomeForm.getRawValue();
 
     if (this.isAddForm()) {
-      this.incomeService.addIncome(newIncome);
+      this.incomeService
+        .createIncome$(newIncome)
+        .pipe(takeUntilDestroyed(this.destroy))
+        .subscribe({
+          next: () => {
+            console.log('Income added successfully!');
+            this.incomeForm.reset();
+            this.handleCloseModal();
+          },
+          error: () => {
+            console.log('Adding income failed!');
+          },
+        });
     } else {
-      this.incomeService.updateIncome(this.selectedIncome()?.id, newIncome);
+      this.incomeService
+        .editIncome$(this.selectedIncome()?.id, newIncome)
+        .pipe(takeUntilDestroyed(this.destroy))
+        .subscribe({
+          next: () => {
+            console.log('Income updated successfully!');
+            this.incomeForm.reset();
+            this.handleCloseModal();
+          },
+          error: () => {
+            console.log('Updating income failed!');
+          },
+        });
     }
-
-    this.incomeForm.reset();
-    this.handleCloseModal();
   }
 
   handleCloseModal(): void {

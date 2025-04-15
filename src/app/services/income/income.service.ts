@@ -2,55 +2,37 @@ import { computed, inject, Injectable, Signal, signal } from '@angular/core';
 import { catchError, EMPTY, from, map, Observable, tap } from 'rxjs';
 import { Income } from '../../models/income';
 import { SupabaseService } from '../supabase/supabase.service';
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Injectable({
   providedIn: 'root',
 })
 export class IncomeService {
-  private supabaseService: SupabaseService = inject(SupabaseService);
+  private supabaseService = inject(SupabaseService);
 
   private readonly incomes = signal<Income[]>([]);
-  private readonly isLoading = signal(false);
+  private readonly isLoading = signal<boolean>(false);
 
-  constructor() {
-    this.loadIncomes();
-  }
+  // Simplified signal accessors
+  incomesList = this.incomes.asReadonly();
+  isLoadingState = this.isLoading.asReadonly();
 
-  getIncomeList(): Signal<Income[]> {
-    return this.incomes.asReadonly();
-  }
-
-  getIsLoading(): Signal<boolean> {
-    return this.isLoading.asReadonly();
-  }
-
-  readonly totalIncome: Signal<number> = computed(() => {
-    return this.incomes().reduce((total, income) => total + income.amount, 0);
-  });
-
-  private fetchIncomes$(): Observable<Income[]> {
+  fetchIncomes$(): Observable<Income[]> {
+    this.isLoading.set(true);
     return from(
       this.supabaseService.supabase
         .from('incomes')
         .select(`id, name, amount, date`),
-    ).pipe(map(this.processResponse<Income>), catchError(this.processError));
+    ).pipe(
+      map(this.processResponse<Income>),
+      tap((data) => {
+        this.incomes.set(data);
+        this.isLoading.set(false);
+      }),
+      catchError(this.processError),
+    );
   }
 
-  private loadIncomes(): void {
-    this.isLoading.set(true);
-    this.fetchIncomes$()
-      .pipe(
-        takeUntilDestroyed(),
-        tap((data) => {
-          this.incomes.set(data);
-          this.isLoading.set(false);
-        }),
-      )
-      .subscribe();
-  }
-
-  private createIncome$(income: Omit<Income, 'id'>): Observable<Income[]> {
+  createIncome$(income: Omit<Income, 'id'>): Observable<Income[]> {
     return from(
       this.supabaseService.supabase
         .from('incomes')
@@ -60,24 +42,19 @@ export class IncomeService {
           date: income.date,
         })
         .select(),
-    ).pipe(map(this.processResponse<Income>), catchError(this.processError));
+    ).pipe(
+      map(this.processResponse<Income>),
+      tap((data) => {
+        if (data.length > 0) {
+          this.incomes.update((incomes) => [...incomes, data[0]]);
+        }
+      }),
+      catchError(this.processError),
+    );
   }
 
-  addIncome(income: Omit<Income, 'id'>): void {
-    this.createIncome$(income)
-      .pipe(
-        takeUntilDestroyed(),
-        tap((data) => {
-          if (data.length > 0) {
-            this.incomes.update((incomes) => [...incomes, data[0]]);
-          }
-        }),
-      )
-      .subscribe();
-  }
-
-  private editIncome$(
-    id: string,
+  editIncome$(
+    id: string | undefined,
     newIncome: Omit<Income, 'id'>,
   ): Observable<Income[]> {
     return from(
@@ -90,52 +67,44 @@ export class IncomeService {
         })
         .eq('id', id)
         .select(),
-    ).pipe(map(this.processResponse<Income>), catchError(this.processError));
+    ).pipe(
+      map(this.processResponse<Income>),
+      tap((data) => {
+        if (data.length > 0) {
+          this.incomes.update((incomes) => {
+            return incomes.map((income) =>
+              income.id === id ? { ...data[0], id } : income,
+            );
+          });
+        }
+      }),
+      catchError(this.processError),
+    );
   }
 
-  updateIncome(id: string | undefined, newIncome: Omit<Income, 'id'>): void {
-    if (id) {
-      this.editIncome$(id, newIncome)
-        .pipe(
-          takeUntilDestroyed(),
-          tap((data) => {
-            if (data.length > 0) {
-              this.incomes.update((incomes) => {
-                return incomes.map((income) =>
-                  income.id === id ? { ...data[0], id } : income,
-                );
-              });
-            }
-          }),
-        )
-        .subscribe();
-    }
-  }
-
-  private removeIncome$(id: string): Observable<Income[]> {
+  removeIncome$(id: string): Observable<Income[]> {
     return from(
       this.supabaseService.supabase
         .from('incomes')
         .delete()
         .eq('id', id)
         .select(),
-    ).pipe(map(this.processResponse<Income>), catchError(this.processError));
+    ).pipe(
+      map(this.processResponse<Income>),
+      tap((data) => {
+        if (data.length > 0) {
+          this.incomes.update((incomes) => {
+            return incomes.filter((income) => income.id !== id);
+          });
+        }
+      }),
+      catchError(this.processError),
+    );
   }
 
-  deleteIncome(id: string): void {
-    this.removeIncome$(id)
-      .pipe(
-        takeUntilDestroyed(),
-        tap((data) => {
-          if (data.length > 0) {
-            this.incomes.update((incomes) => {
-              return incomes.filter((income) => income.id !== id);
-            });
-          }
-        }),
-      )
-      .subscribe();
-  }
+  readonly totalIncome: Signal<number> = computed(() => {
+    return this.incomes().reduce((total, income) => total + income.amount, 0);
+  });
 
   private processResponse<T>(response: { data: any; error: any }): T[] {
     const { data, error } = response;

@@ -6,8 +6,7 @@ import {
   Signal,
   ViewChild,
 } from '@angular/core';
-import { IncomeService } from '../../services/income/income.service';
-import { ExpenseService } from '../../services/expense/expense.service';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
   ApexChart,
   ApexNonAxisChartSeries,
@@ -15,11 +14,13 @@ import {
   ChartComponent,
   NgApexchartsModule,
 } from 'ng-apexcharts';
+import { forkJoin } from 'rxjs';
 import { Category } from '../../models/expense';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
+import { ExpenseService } from '../../services/expense/expense.service';
+import { IncomeService } from '../../services/income/income.service';
 import { InvestmentsService } from '../../services/investments/investments.service';
 import { SavingsService } from '../../services/savings/savings.service';
+import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -61,6 +62,16 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Fetch initial data
+    forkJoin([
+      this.expenseService.fetchExpenses$(),
+      this.expenseService.fetchCategoryList$(),
+      this.incomeService.fetchIncomes$(),
+      this.investmentsService.fetchInvestments$(),
+      this.savingsService.fetchSavings$(),
+    ]).subscribe();
+
+    // Update chart data
     this.expensesByCategory$.subscribe((data) => {
       this.chartOptions.series = data.map(
         (categoryExpense) => categoryExpense.total,

@@ -1,13 +1,13 @@
 import {
-  Component, DestroyRef,
+  Component,
+  DestroyRef,
   inject,
   input,
   OnChanges,
   OnInit,
   output,
-  Signal
-} from "@angular/core";
-import { ExpenseService } from '../../../services/expense/expense.service';
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormControl,
   FormGroup,
@@ -17,8 +17,8 @@ import {
 import { Datepicker } from 'flowbite';
 import { Flowbite } from '../../../flowbite/flowbite';
 import { Category, Expense } from '../../../models/expense';
+import { ExpenseService } from '../../../services/expense/expense.service';
 import { ModalBaseComponent } from '../../ui/modal-base/modal-base.component';
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-expenses-form',
@@ -57,10 +57,17 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
   }
 
   private loadCategory(): void {
-    this.expenseService.fetchCategoryList$().pipe(takeUntilDestroyed(this.destroy)).subscribe({
-      next: () => { console.log("Category loaded successfully!") },
-      error: () => { console.log("Loading category failed!") }
-    })
+    this.expenseService
+      .fetchCategoryList$()
+      .pipe(takeUntilDestroyed(this.destroy))
+      .subscribe({
+        next: (categories) => {
+          console.log('Categories loaded successfully!', categories);
+        },
+        error: (error) => {
+          console.error('Loading categories failed!', error);
+        },
+      });
   }
 
   private initDatePicker(): void {
@@ -152,13 +159,38 @@ export class ExpensesFormComponent implements OnInit, OnChanges {
     const newExpense = this.expenseForm.getRawValue();
 
     if (this.isAddForm()) {
-      this.expenseService.addExpense(newExpense);
+      this.expenseService
+        .createExpense$(newExpense)
+        .pipe(takeUntilDestroyed(this.destroy))
+        .subscribe({
+          next: () => {
+            this.expenseForm.reset();
+            this.handleCloseModal();
+          },
+          error: (error) => {
+            console.error('Failed to create expense:', error);
+          },
+        });
     } else {
-      this.expenseService.updateExpense(this.selectedExpense()?.id, newExpense);
-    }
+      const expenseId = this.selectedExpense()?.id;
+      if (!expenseId) {
+        console.error('No expense ID found for update');
+        return;
+      }
 
-    this.expenseForm.reset();
-    this.handleCloseModal();
+      this.expenseService
+        .editExpense$(expenseId, newExpense)
+        .pipe(takeUntilDestroyed(this.destroy))
+        .subscribe({
+          next: () => {
+            this.expenseForm.reset();
+            this.handleCloseModal();
+          },
+          error: (error) => {
+            console.error('Failed to update expense:', error);
+          },
+        });
+    }
   }
 
   handleCloseModal(): void {

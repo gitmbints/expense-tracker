@@ -1,13 +1,13 @@
 import { computed, inject, Injectable, Signal, signal } from '@angular/core';
+import { catchError, EMPTY, from, map, Observable, switchMap, tap } from 'rxjs';
 import { Category, Expense } from '../../models/expense';
 import { SupabaseService } from '../supabase/supabase.service';
-import { catchError, EMPTY, from, map, Observable, switchMap, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpenseService {
-  private supabaseService: SupabaseService = inject(SupabaseService);
+  private supabaseService = inject(SupabaseService);
 
   private readonly expenses = signal<Expense[]>([]);
   private readonly isLoading = signal(false);
@@ -15,7 +15,7 @@ export class ExpenseService {
 
   expenseList = this.expenses.asReadonly();
   isLoadingState = this.isLoading.asReadonly();
-  categoryList =  this.category.asReadonly();
+  categoryList = this.category.asReadonly();
 
   fetchExpenses$(): Observable<Expense[]> {
     this.isLoading.set(true);
@@ -29,10 +29,11 @@ export class ExpenseService {
         this.expenses.set(data);
         this.isLoading.set(false);
       }),
-      catchError(this.processError));
+      catchError(this.processError),
+    );
   }
 
-  private createExpense$(expense: Omit<Expense, 'id'>): Observable<Expense[]> {
+  createExpense$(expense: Omit<Expense, 'id'>): Observable<Expense[]> {
     return from(
       this.supabaseService.supabase
         .from('expenses')
@@ -44,10 +45,10 @@ export class ExpenseService {
         .select(),
     ).pipe(
       switchMap((response: { data: any; error: any }) => {
-        const createdExpense = response.data[0]; // Assumer que `select()` retourne un tableau
+        const createdExpense = response.data[0];
 
         if (!createdExpense) {
-          throw new Error('Erreur lors de la création de la dépense');
+          throw new Error('Error creating expense');
         }
 
         const associations = expense.categories.map((category) => ({
@@ -55,37 +56,18 @@ export class ExpenseService {
           category_id: category.id,
         }));
 
-        return from(
-          this.supabaseService.supabase
-            .from('expenses_categories')
-            .insert(associations),
-        ).pipe(
-          switchMap(() => {
-            return this.supabaseService.supabase
-              .from('categories')
-              .select('*')
-              .in(
-                'id',
-                associations.map((association) => association.category_id),
-              );
-          }),
-          map((response: { data: any; error: any }) => {
-            const categories =
-              response.data?.map((res: any) => ({
-                id: res.id,
-                name: res.name,
-              })) || [];
-
-            return [{ ...createdExpense, categories: categories }];
-          }),
-          catchError(this.processError),
-        );
+        return this.createExpenseCategories$(createdExpense, associations);
+      }),
+      tap((data) => {
+        if (data.length > 0) {
+          this.expenses.update((expenses) => [...expenses, data[0]]);
+        }
       }),
       catchError(this.processError),
     );
   }
 
-  private editExpense$(
+  editExpense$(
     id: string,
     newExpense: Omit<Expense, 'id'>,
   ): Observable<Expense[]> {
@@ -101,10 +83,10 @@ export class ExpenseService {
         .select(),
     ).pipe(
       switchMap((response: { data: any; error: any }) => {
-        const updatedExpense = response.data[0]; // Assumer que `select()` retourne un tableau
+        const updatedExpense = response.data[0];
 
         if (!updatedExpense) {
-          throw new Error('Erreur lors de la création de la dépense');
+          throw new Error('Error updating expense');
         }
 
         const associations = newExpense.categories.map((category) => ({
@@ -112,50 +94,39 @@ export class ExpenseService {
           category_id: category.id,
         }));
 
-        return from(
-          this.supabaseService.supabase
-            .from('expenses_categories')
-            .delete()
-            .eq('expense_id', id),
-        ).pipe(
-          switchMap(() => {
-            return this.supabaseService.supabase
-              .from('expenses_categories')
-              .insert(associations);
-          }),
-          switchMap(() => {
-            return this.supabaseService.supabase
-              .from('categories')
-              .select('*')
-              .in(
-                'id',
-                associations.map((association) => association.category_id),
-              );
-          }),
-          map((response: { data: any; error: any }) => {
-            const categories =
-              response.data?.map((res: any) => ({
-                id: res.id,
-                name: res.name,
-              })) || [];
-
-            return [{ ...updatedExpense, categories: categories }];
-          }),
-          catchError(this.processError),
-        );
+        return this.updateExpenseCategories$(id, updatedExpense, associations);
+      }),
+      tap((data) => {
+        if (data.length > 0) {
+          this.expenses.update((expenses) => {
+            return expenses.map((expense) =>
+              expense.id === id ? { ...data[0], id } : expense,
+            );
+          });
+        }
       }),
       catchError(this.processError),
     );
   }
 
-  private removeExpense$(id: string): Observable<Expense[]> {
+  removeExpense$(id: string): Observable<Expense[]> {
     return from(
       this.supabaseService.supabase
         .from('expenses')
         .delete()
         .eq('id', id)
         .select(),
-    ).pipe(map(this.processResponse<Expense>), catchError(this.processError));
+    ).pipe(
+      map(this.processResponse<Expense>),
+      tap((data) => {
+        if (data.length > 0) {
+          this.expenses.update((expenses) => {
+            return expenses.filter((expense) => expense.id !== id);
+          });
+        }
+      }),
+      catchError(this.processError),
+    );
   }
 
   fetchCategoryList$(): Observable<Category[]> {
@@ -166,75 +137,8 @@ export class ExpenseService {
       tap((data) => {
         this.category.set(data);
       }),
-      catchError(this.processError));
-  }
-
-  addExpense(expense: Omit<Expense, 'id'>): void {
-    this.createExpense$(expense)
-      .pipe(
-        tap((data) => {
-          if (data.length > 0) {
-            this.expenses.update((expenses) => [...expenses, data[0]]);
-          }
-        }),
-      )
-      .subscribe();
-  }
-
-  updateExpense(id: string | undefined, newExpense: Omit<Expense, 'id'>): void {
-    if (id) {
-      this.editExpense$(id, newExpense)
-        .pipe(
-          tap((data) => {
-            if (data.length > 0) {
-              this.expenses.update((expenses) => {
-                return expenses.map((expense) =>
-                  expense.id === id ? { ...data[0], id } : expense,
-                );
-              });
-            }
-          }),
-        )
-        .subscribe();
-    }
-  }
-
-  deleteExpense(id: string): void {
-    this.removeExpense$(id)
-      .pipe(
-        tap((data) => {
-          if (data.length > 0) {
-            this.expenses.update((expenses) => {
-              return expenses.filter((expense) => expense.id !== id);
-            });
-          }
-        }),
-      )
-      .subscribe();
-  }
-
-  readonly totalExpense: Signal<number> = computed(() => {
-    return this.expenses().reduce(
-      (total, expense) => total + expense.amount,
-      0,
+      catchError(this.processError),
     );
-  });
-
-  private processResponse<T>(response: { data: any; error: any }): T[] {
-    const { data, error } = response;
-
-    if (error) {
-      throw new Error(
-        `Something on the request went wrong: ${response.error.message}`,
-      );
-    }
-    return (data as T[]) || [];
-  }
-
-  private processError(err: any): Observable<never> {
-    console.error('Failed to process the response: ', err.message);
-    this.isLoading.set(false);
-    return EMPTY;
   }
 
   getExpensesByCategory(): Signal<{ category: Category; total: number }[]> {
@@ -266,5 +170,86 @@ export class ExpenseService {
         return { category, total };
       });
     });
+  }
+
+  private createExpenseCategories$(
+    createdExpense: any,
+    associations: any[],
+  ): Observable<Expense[]> {
+    return from(
+      this.supabaseService.supabase
+        .from('expenses_categories')
+        .insert(associations),
+    ).pipe(
+      switchMap(() => this.fetchCategories$(associations)),
+      map((categories) => [{ ...createdExpense, categories }]),
+      catchError(this.processError),
+    );
+  }
+
+  private updateExpenseCategories$(
+    id: string,
+    updatedExpense: any,
+    associations: any[],
+  ): Observable<Expense[]> {
+    return from(
+      this.supabaseService.supabase
+        .from('expenses_categories')
+        .delete()
+        .eq('expense_id', id),
+    ).pipe(
+      switchMap(() =>
+        this.supabaseService.supabase
+          .from('expenses_categories')
+          .insert(associations),
+      ),
+      switchMap(() => this.fetchCategories$(associations)),
+      map((categories) => [{ ...updatedExpense, categories }]),
+      catchError(this.processError),
+    );
+  }
+
+  private fetchCategories$(associations: any[]): Observable<Category[]> {
+    return from(
+      this.supabaseService.supabase
+        .from('categories')
+        .select('*')
+        .in(
+          'id',
+          associations.map((association) => association.category_id),
+        ),
+    ).pipe(
+      map(
+        (response: { data: any; error: any }) =>
+          response.data?.map((res: any) => ({
+            id: res.id,
+            name: res.name,
+          })) || [],
+      ),
+    );
+  }
+
+  readonly totalExpense: Signal<number> = computed(() => {
+    return this.expenses().reduce(
+      (total, expense) => total + expense.amount,
+      0,
+    );
+  });
+
+  private processResponse<T>(response: { data: any; error: any }): T[] {
+    const { data, error } = response;
+
+    if (error) {
+      throw new Error(
+        `Something on the request went wrong: ${response.error.message}`,
+      );
+    }
+    return (data as T[]) || [];
+  }
+
+  private processError(err: any): Observable<never> {
+    console.error('Failed to process the response: ', err.message);
+    this.isLoading.set(false);
+    return EMPTY;
   }
 }

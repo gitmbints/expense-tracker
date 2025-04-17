@@ -1,12 +1,20 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, Signal } from "@angular/core";
-import { ExpenseService } from "../../services/expense/expense.service";
-import { Expense } from "../../models/expense";
-import { ExpensesFormComponent } from "./expenses-form/expenses-form.component";
-import { DatePipe } from "@angular/common";
-import { ModalDeleteComponent } from "./modal-delete/modal-delete.component";
-import { LoaderSpinnerComponent } from "../ui/loader-spinner/loader-spinner.component";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { DatePipe } from '@angular/common';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  Signal,
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Expense } from '../../models/expense';
+import { ExpenseService } from '../../services/expense/expense.service';
+import { LoaderSpinnerComponent } from '../ui/loader-spinner/loader-spinner.component';
+import { ExpensesFormComponent } from './expenses-form/expenses-form.component';
+import { ModalDeleteComponent } from './modal-delete/modal-delete.component';
 
 @Component({
   selector: 'app-expenses',
@@ -27,6 +35,8 @@ export class ExpensesComponent implements OnInit {
   readonly expenseList = this.expenseService.expenseList;
   readonly isLoading = this.expenseService.isLoadingState;
   readonly totalExpense = this.expenseService.totalExpense;
+  readonly categoryList = this.expenseService.categoryList;
+  readonly expensesByCategory = this.expenseService.getExpensesByCategory();
 
   readonly isAddForm = signal<boolean>(true);
   readonly isShowModal = signal<boolean>(false);
@@ -43,8 +53,8 @@ export class ExpensesComponent implements OnInit {
     if (this.searchValue()) {
       return this.expenseList().filter((expense) => {
         return expense.name
-        .toLowerCase()
-        .includes(this.searchValue()?.toLowerCase() || '');
+          .toLowerCase()
+          .includes(this.searchValue()?.toLowerCase() || '');
       });
     }
 
@@ -53,13 +63,35 @@ export class ExpensesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadExpenses();
+    this.loadCategories();
   }
 
   private loadExpenses(): void {
-    this.expenseService.fetchExpenses$().pipe(takeUntilDestroyed(this.destroy)).subscribe({
-      next: () => { console.log("Expenses loaded successfully!") },
-      error: () => { console.log("Loading expenses failed!") }
-    })
+    this.expenseService
+      .fetchExpenses$()
+      .pipe(takeUntilDestroyed(this.destroy))
+      .subscribe({
+        next: () => {
+          console.log('Expenses loaded successfully!');
+        },
+        error: () => {
+          console.log('Loading expenses failed!');
+        },
+      });
+  }
+
+  private loadCategories(): void {
+    this.expenseService
+      .fetchCategoryList$()
+      .pipe(takeUntilDestroyed(this.destroy))
+      .subscribe({
+        next: () => {
+          console.log('Categories loaded successfully!');
+        },
+        error: () => {
+          console.log('Loading categories failed!');
+        },
+      });
   }
 
   onAddExpense(): void {

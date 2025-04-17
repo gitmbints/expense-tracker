@@ -19,7 +19,9 @@ export class ModalDeleteComponent {
   }
 
   onDeleteItem(): void {
-    this.expenseService.deleteExpense(this.id());
-    this.closeModal.emit();
+    this.expenseService.removeExpense$(this.id()).subscribe({
+      next: () => this.closeModal.emit(),
+      error: (error) => console.error('Error deleting expense:', error),
+    });
   }
 }

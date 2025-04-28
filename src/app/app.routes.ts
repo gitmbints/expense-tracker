@@ -1,12 +1,13 @@
 import { Routes } from '@angular/router';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { ExpensesComponent } from './components/expenses/expenses.component';
-import { IncomesComponent } from './components/incomes/incomes.component';
-import { SavingsComponent } from './components/savings/savings.component';
-import { InvestComponent } from './components/invest/invest.component';
-import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
-import { AuthComponent } from "./components/auth/auth.component";
-import { authGuard } from "./guards/auth.guard";
+import { AuthComponent } from './auth/auth.component';
+import { authGuard } from './auth/auth.guard';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { ExpensesComponent } from './expenses/expenses.component';
+import { IncomesComponent } from './incomes/incomes.component';
+import { InvestComponent } from './invest/invest.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { SavingsComponent } from './savings/savings.component';
+// ... existing code ...
 
 export const routes: Routes = [
   {
